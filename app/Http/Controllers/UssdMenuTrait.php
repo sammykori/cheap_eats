@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+use App\Menu;
 
 trait UssdMenuTrait{
 
@@ -9,13 +10,6 @@ trait UssdMenuTrait{
         $start .= "2. Menu\n";
         $start .= "3. Exit";
         $this->ussd_proceed($start);
-    }
-    public function servicesMenu(){
-        $serve = "What service are you looking for?\n";
-        $serve .= "1. Subscribe to updates\n";
-        $serve .= "2. Information on the service\n";
-        $serve .= "3. Logout";
-        $this->ussd_proceed($serve);
     }
     public function officeList(){
         $office = "Select delivery location\n";
@@ -27,22 +21,32 @@ trait UssdMenuTrait{
     }
     public function foodMenu($name){
         $food = "What are feeling for today ".ucwords($name). ",\n";
-        $food .= "1. Breakfast\n";
-        $food .= "2. Lunch\n";
+        $food .= "1. Worker Meal (GHS 10.00)\n";
+        $food .= "2. Bossu Meal (GHS 20.00)\n";
         $this->ussd_proceed($food);
     }
-    public function bfMenu(){
-        $bf = "Breakfast is the most important meal of the day \n";
-        $bf .= "1. Special Kooko with Koose & Bread \n";
-        $bf .= "2. Rich Tea with Bread & Egg\n";
-        $bf .= "2. Special Oats with Bread & Egg\n";
+    public function workerMenu(){
+        $menu = Menu::where([['type', '1'], ['status', 'available']])->pluck('name');
+        $bf = "Worker meal | All meals cost GHS 10.00\n";
+        $i = 0;
+        if(count($menu) > 0){
+            foreach ($menu as $menu) {
+                $i++;
+                $bf .= "$i. $menu \n";
+            }
+        }
         $this->ussd_proceed($bf);
     }
-    public function lunchMenu(){
-        $lunch = "Lunch breaks work wonders \n";
-        $lunch .= "1. Waakye Special with Fish\n";
-        $lunch .= "2. Millet Kenkey with Red Fish\n";
-        $lunch .= "2. Special Jollof with Egg\n";
+    public function bossuMenu(){
+        $menu = Menu::where([['type', '2'], ['status', 'available']])->pluck('name');
+        $lunch = "Bossu meal | All meals cost GHS 20.00\n ";
+        $i = 0;
+        if(count($menu) > 0){
+            foreach ($menu as $menu) {
+                $i++;
+                $lunch .= "$i. $menu \n";
+            }
+        }
         $this->ussd_proceed($lunch);
     }
 }

@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\User;
 use App\Order;
-
+use App\Menu;
 class UssdController extends Controller
 {
     use UssdMenuTrait;
     use SmsTrait;
-    private $amount = 10;
+    use PaymentAPI;
+    protected    $amount = 10;
 
     public function ussdRequestHandler(Request $request)
     {
@@ -51,7 +53,7 @@ class UssdController extends Controller
                     $this->foodMenu('');
                 } else if ($ussd_string_exploded[0] == "3") {
                     //If user selected 3, exit
-                    $this->ussd_stop("Thank you for reaching out to SampleUSSD.");
+                    $this->ussd_stop("For more information please call");
                 }
 
             break;
@@ -61,10 +63,10 @@ class UssdController extends Controller
                 }
                 else if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[1])){
                     if($ussd_string_exploded[1] == "1"){
-                        $this->bfMenu();
+                        $this->workerMenu();
                     }
                     else if($ussd_string_exploded[1] == "2"){
-                        $this->lunchMenu();
+                        $this->bossuMenu();
                     }
                 }
 
@@ -73,56 +75,48 @@ class UssdController extends Controller
                 if($ussd_string_exploded[0] == "1" && !empty($ussd_string_exploded[2])){
                     if($this->ussdRegister($ussd_string_exploded[1],$ussd_string_exploded[2], $phone) == "success"){
                         $name = User::where('phone', $phone)->pluck('name');
-                        $this->foodMenu($name[0]);
+                        $this->ussd_proceed("Welcome to Cheaps!\nDial the Cheap Code again for your personalized menu");
                     }
+
                 }else if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[2])){
                     $this->ussd_proceed("Quantity preferred,\n NB: Quantity more than 10 will take more time \n");
                 }
             break;
             case 4:
-                if($ussd_string_exploded[0] == "1" && !empty($ussd_string_exploded[3])){
-                    if($ussd_string_exploded[3] == "1"){
-                        $this->bfMenu();
-                    }
-                    else if($ussd_string_exploded[3] == "2"){
-                        $this->lunchMenu();
-                    }
-                }
-                else if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[3])){
+                if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[3])){
                     $this->amount *= (int)$ussd_string_exploded[3];
                     $this->ussd_proceed("Please enter full name of Contact person \n");
                 }
             break;
             case 5:
-                if($ussd_string_exploded[0] == "1" && !empty($ussd_string_exploded[4])){
-                    $this->ussd_proceed("Quantity preferred,\n NB: Quantity more than 10 will take more time \n");
-                }
-                else if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[4])){
+                if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[4])){
                     $this->officeList();
                 }
             break;
             case 6:
-                if($ussd_string_exploded[0] == "1" && !empty($ussd_string_exploded[5])){
-                    $this->ussd_proceed("1. For Self \n 2. For other Person \n (Enter name and office)");
-                }
-                else if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[5])){
-                    $this->ussd_proceed("Name: ".$ussd_string_exploded[4]." (" .$phone.") \n Order: ".$ussd_string_exploded[2]." (". $ussd_string_exploded[3].") \n  Price: ".$this->amount." \n 1. Confirm \n 2. Cancel" );
+                if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[5])){
+                    $int = (int)$ussd_string_exploded[3];
+                    $this->amount *= $int;
+                    $this->ussd_proceed("Name: ".$ussd_string_exploded[4]." (" .$phone.") \n Order: ".$ussd_string_exploded[2]." (". $ussd_string_exploded[3].") \n  Price: GHS ".$this->amount." \n 1. Confirm \n 2. Cancel" );
                 }
             break;
             case 7:
-                if($ussd_string_exploded[0] == "1" && !empty($ussd_string_exploded[5])){
-                    if($ussd_string_exploded[5] == "2"){
-                        $name = User::where('phone', $phone)->pluck('name');
-                        $this->ussd_proceed("Name: ".$name." (" .$phone.") \n Order: ".$ussd_string_exploded[3]." (". $ussd_string_exploded[4].") \n  Price: ".$this->amount." \n 1. Confirm \n 2. Cancel" );
-                    }
-                    else if($ussd_string_exploded[5] == "1"){
-                        $this->ussd_stop("Thank you. Do come again ;)");
-                    }
-                }
-                else if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[6])){
+                if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[6])){
                     if($ussd_string_exploded[6] == "1"){
-                        if($this->placeOrder($phone, $ussd_string_exploded) == "success"){
-                            $this->ussd_stop("Proceed with payment to complete order");
+                        $uuid = $this->generateUuid();
+                        $int = (int)$ussd_string_exploded[3];
+                        $this->amount *= $int;
+                        $status = $this->requestToPay($uuid, $this->amount, $phone);
+                        if($status == "202"){
+                            $response = $this->requestPayStatus($uuid);
+                                if($response->status = "SUCCESSFUL"){
+                                    $this->placeOrder($phone, $ussd_string_exploded, $uuid);
+                                }
+                            $this->ussd_stop("Order Confirmed ".$response->status);
+
+                        }
+                        else{
+                            $this->ussd_stop("User Momo Account not Active\n".$uuid);
                         }
                     }else if($ussd_string_exploded[6] == "2"){
                         $this->ussd_stop("Thank you. Do come again ;)");
@@ -131,6 +125,10 @@ class UssdController extends Controller
             break;
             // N/B: There are no more cases handled as the following requests will be handled by return user
         }
+    }
+
+    public function generateUuid(){
+        return (string) Str::uuid();
     }
 
 	public function handleReturnUser($ussd_string, $phone, $name)
@@ -147,30 +145,112 @@ class UssdController extends Controller
 		switch ($level) {
 			case ($level == 1 && !empty($ussd_string)):
 				if ($ussd_string_exploded[0] == "1") {
-					$this->bfMenu();
+					$this->workerMenu();
 				} else if ($ussd_string_exploded[0] == "2") {
 					//If user selected 2, end session
-					$this->lunchMenu();
+					$this->bossuMenu();
 				}
 			break;
 			case 2:
-				if ($this->ussdLogin($ussd_string_exploded[1], $phone) == "Success") {
-					$this->servicesMenu();
-				}
+				if(!empty($ussd_string_exploded[1])){
+                    $this->ussd_proceed("Quantity preferred,\n NB: Quantity more than 10 will take more time \n");
+                }
 			break;
 			case 3:
-				if ($ussd_string_exploded[2] == "1") {
-					$this->ussd_stop("You will receive an sms shortly.");
-					$this->sendText("You have successfully subscribed to updates from SampleUSSD.",$phone);
-				} else if ($ussd_string_exploded[2] == "2") {
-					$this->ussd_stop("You will receive more information on SampleUSSD via sms shortly.");
-					$this->sendText("This is a subscription service from SampleUSSD.",$phone);
-				} else if ($ussd_string_exploded[2] == "3") {
-					$this->ussd_stop("Thanks for reaching out to SampleUSSD.");
-				} else {
-					$this->ussd_stop("Invalid input!");
+				if (!empty($ussd_string_exploded[2])) {
+					$this->ussd_proceed("1. For Self\n2. For other");
 				}
-			break;
+            break;
+            case 4:
+				if (!empty($ussd_string_exploded[3]) && $ussd_string_exploded[3] == "1") {
+					$int = (int)$ussd_string_exploded[2];
+                    $this->amount *= $int;
+                    $this->ussd_proceed("Name: ".$name." (" .$phone.") \n Order: ".$ussd_string_exploded[1]." (". $ussd_string_exploded[2].") \n  Price: GHS ".$this->amount." \n 1. Confirm \n 2. Cancel" );
+                }
+                else if(!empty($ussd_string_exploded[3]) && $ussd_string_exploded[3] == "2"){
+                    $this->ussd_proceed("Full name of contact person");
+                }
+            break;
+            case 5:
+                if($ussd_string_exploded[3] == "1" && !empty($ussd_string_exploded[4])){
+                    if($ussd_string_exploded[4] == "1"){
+                        $uuid = $this->generateUuid();
+                        $int = (int)$ussd_string_exploded[2];
+                        $this->amount *= $int;
+                        $loc = User::where('phone', $phone)->pluck('office');
+                        $menu = Menu::where([['type', $ussd_string_exploded[0]], ['status', 'available']])->pluck('name');
+                        $m = (int)$ussd_string_exploded[1]-1;
+                        $status = $this->requestToPay($uuid, $this->amount, $phone);
+                        if($status == "202"){
+                            $response = $this->requestPayStatus($uuid);
+                                if($response->status = "SUCCESSFUL"){
+                                    $order = new Order;
+                                    $order->uuid = $uuid;
+                                    $order->name = $name;
+                                    $order->phone = $phone;
+                                    $order->menu_id = $menu[$m];
+                                    $order->quantity = $ussd_string_exploded[2];
+                                    $order->amount = $this->amount;
+                                    $order->location = $loc[0];
+                                    $order->save();
+                                }
+                            $this->ussd_stop("Order Confirmed ".$response->status);
+
+                        }
+                        else{
+                            $this->ussd_stop("User Momo Account not Active\n".$uuid);
+                        }
+                    }else if($ussd_string_exploded[4] == "2"){
+                        $this->ussd_stop("Thank you. Do come again ;)");
+                    }
+                }
+				else if ($ussd_string_exploded[3] == "2" && !empty($ussd_string_exploded[4])) {
+					$this->officeList();
+				}
+            break;
+            case 6:
+				if (!empty($ussd_string_exploded[5])) {
+					$int = (int)$ussd_string_exploded[2];
+                    $this->amount *= $int;
+                    $this->ussd_proceed("Name: ".$ussd_string_exploded[4]." (" .$phone.") \n Order: ".$ussd_string_exploded[1]." (". $ussd_string_exploded[2].") \n  Price: GHS ".$this->amount." \n 1. Confirm \n 2. Cancel" );
+				}
+            break;
+            case 7:
+                if(!empty($ussd_string_exploded[6])){
+                    if($ussd_string_exploded[6] == "1"){
+                        $uuid = $this->generateUuid();
+                        $int = (int)$ussd_string_exploded[2];
+                        $this->amount *= $int;
+                        $menu = Menu::where([['type', $ussd_string_exploded[0]], ['status', 'available']])->pluck('name');
+                        $m = (int)$ussd_string_exploded[1] -1;
+                        $status = $this->requestToPay($uuid, $this->amount, $phone);
+                        if($status == "202"){
+                            $response = $this->requestPayStatus($uuid);
+                                if($response->status = "SUCCESSFUL"){
+                                    $order = new Order;
+                                    $order->uuid = $uuid;
+                                    $order->name = $ussd_string_exploded[4];
+                                    $order->phone = $phone;
+                                    $order->menu_id = $menu[$m];
+                                    $order->quantity = $ussd_string_exploded[2];
+                                    $order->amount = $this->amount;
+                                    $order->location = $ussd_string_exploded[5];
+                                    $order->save();
+                                }
+                            $this->ussd_stop("Order Confirmed ".$response->status);
+
+                        }
+                        else{
+                            $this->ussd_stop("User Momo Account not Active\n".$uuid);
+                        }
+                    }else if($ussd_string_exploded[6] == "2"){
+                        $this->ussd_stop("Thank you. Do come again ;)");
+                    }
+                }
+				else if ($ussd_string_exploded[3] == "2" && !empty($ussd_string_exploded[4])) {
+					$this->officeList();
+				}
+            break;
 		}
     }
     public function ussd_proceed($ussd_text) {
@@ -196,12 +276,15 @@ class UssdController extends Controller
           return "success";
       }
 
-      public function placeOrder($phone, $ussd)
+      public function placeOrder($phone, $ussd, $uuid)
       {
+        $menu = Menu::where([['type', $ussd[1]], ['status', 'available']])->pluck('name');
+        $m = (int)$ussd[2]-1;
           $order = new Order;
+          $order->uuid = $uuid;
           $order->name = $ussd[4];
           $order->phone = $phone;
-          $order->menu_id = $ussd[2];
+          $order->menu_id = $menu[$m];
           $order->quantity = $ussd[3];
           $order->amount = $this->amount;
           $order->location = $ussd[5];
