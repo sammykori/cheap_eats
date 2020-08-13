@@ -32,6 +32,8 @@ class UssdController extends Controller
              $this->handleNewUser($text, $phone);
         }
     }
+
+
     public function handleNewUser($ussd_string, $phone)
     {
         $ussd_string_exploded = explode ("*",$ussd_string);
@@ -40,7 +42,7 @@ class UssdController extends Controller
         $level = count($ussd_string_exploded);
 
         if(empty($ussd_string) or $level == 0) {
-            $this->newUserMenu(); // show the home menu
+             $this->newUserMenu(); // show the home menu
         }
 
         switch ($level) {
@@ -55,7 +57,6 @@ class UssdController extends Controller
                     //If user selected 3, exit
                     $this->ussd_stop("For more information please call");
                 }
-
             break;
             case 2:
                 if($ussd_string_exploded[0] == "1" && !empty($ussd_string_exploded[1])){
