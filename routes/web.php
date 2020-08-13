@@ -18,3 +18,10 @@ Route::get('/', function () {
 });
 
 Route::post('/ussd', 'UssdController@ussdRequestHandler');
+
+Auth::routes();
+
+
+Route::prefix('admin')->group(function(){
+    Route::get('/home', 'HomeController@index')->name('home');
+});
