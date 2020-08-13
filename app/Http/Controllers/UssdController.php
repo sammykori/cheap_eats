@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use App\User;
 use App\Order;
 use App\Menu;
+use App\Customer;
 class UssdController extends Controller
 {
     use UssdMenuTrait;
@@ -23,9 +23,9 @@ class UssdController extends Controller
 
         header('Content-type: text/plain');
 
-        if(User::where('phone', $phone)->exists()){
+        if(Customer::where('phone', $phone)->exists()){
             // Function to handle already registered users
-            $name = User::where('phone', $phone)->pluck('name');
+            $name = Customer::where('phone', $phone)->pluck('name');
             $this->handleReturnUser($text, $phone, $name[0]);
         }else {
              // Function to handle new users
@@ -74,7 +74,7 @@ class UssdController extends Controller
             case 3:
                 if($ussd_string_exploded[0] == "1" && !empty($ussd_string_exploded[2])){
                     if($this->ussdRegister($ussd_string_exploded[1],$ussd_string_exploded[2], $phone) == "success"){
-                        $name = User::where('phone', $phone)->pluck('name');
+                        $name = Customer::where('phone', $phone)->pluck('name');
                         $this->ussd_proceed("Welcome to Cheaps!\nDial the Cheap Code again for your personalized menu");
                     }
 
@@ -177,7 +177,7 @@ class UssdController extends Controller
                         $uuid = $this->generateUuid();
                         $int = (int)$ussd_string_exploded[2];
                         $this->amount *= $int;
-                        $loc = User::where('phone', $phone)->pluck('office');
+                        $loc = Customer::where('phone', $phone)->pluck('office');
                         $menu = Menu::where([['type', $ussd_string_exploded[0]], ['status', 'available']])->pluck('name');
                         $m = (int)$ussd_string_exploded[1]-1;
                         $status = $this->requestToPay($uuid, $this->amount, $phone);
@@ -266,7 +266,7 @@ class UssdController extends Controller
           $full_name = $name;//store full name
           $location = $office;
 
-          $user = new User;
+          $user = new Customer;
           $user->name = $full_name;
           $user->phone = $phone;
           // You should encrypt the pin
