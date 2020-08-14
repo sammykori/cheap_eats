@@ -9,7 +9,8 @@ trait UssdMenuTrait{
         $start .= "1. Register\n";
         $start .= "2. Menu\n";
         $start .= "3. Exit";
-        $this->ussd_proceed($start);
+        return $start;
+//        $this->ussd_proceed($start);
     }
     public function officeList(){
         $office = "Select delivery location\n";

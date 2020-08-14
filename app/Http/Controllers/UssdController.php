@@ -7,6 +7,8 @@ use Illuminate\Support\Str;
 use App\Order;
 use App\Menu;
 use App\Customer;
+use App\CheapsHandler;
+
 class UssdController extends Controller
 {
     use UssdMenuTrait;
@@ -18,8 +20,28 @@ class UssdController extends Controller
     {
         $sessionId   = $request["sessionId"];
         $serviceCode = $request["serviceCode"];
-        $phone       = $request["phoneNumber"];
-        $text        = $request["text"];
+        $cheaps = new CheapsHandler;
+        $phone_number = $request->MSISDN;
+        $customer_interaction = $request->USERDATA;
+        $message_type = $request->MSGTYPE;
+
+        $customer_data = [];
+
+        if ($message_type)
+        {
+            $customer_data = $cheaps->validate_customer($phone_number, $message_type);
+        }
+
+        if ($customer_data != null)
+        {
+
+        }
+        else
+        {
+            $this->handleNewUser($phone_number, $customer_interaction,$message_type);
+        }
+
+
 
         header('Content-type: text/plain');
 
@@ -34,15 +56,37 @@ class UssdController extends Controller
     }
 
 
-    public function handleNewUser($ussd_string, $phone)
+    public function handleNewUser($phone_number, $customer_interaction, $message_type)
     {
-        $ussd_string_exploded = explode ("*",$ussd_string);
-
+//        $ussd_string_exploded = explode ("*",$ussd_string);
+        $cheaps = new CheapsHandler;
+        $cheaps_new_customer_response = [
+            "OPTION_ONE" => "Enter your name. (E.g. Samuel Kori)",
+            "OPTION_TWO" => "Menu\n1. Worker Menu\n2. Boss Menu",
+            "OPTION_THREE" => "For more information\nPlease contact 0542857108\nCome Again"
+        ];
         // Get menu level from ussd_string reply
-        $level = count($ussd_string_exploded);
+//        $level = count($ussd_string_exploded);
 
-        if(empty($ussd_string) or $level == 0) {
-             $this->newUserMenu(); // show the home menu
+//        if(empty($ussd_string) or $level == 0) {
+//             $this->newUserMenu(); // show the home menu
+//        }
+        if ($message_type)
+        {
+            $cheaps->handleUSSDresponse($phone_number,$this->newUserMenu(), $message_type);
+        }
+
+        switch (intval($customer_interaction))
+        {
+            case 1:
+                $cheaps->handleUSSDresponse($phone_number, $cheaps_new_customer_response["OPTION_ONE"], true);
+                break;
+            case 2:
+                $cheaps->handleUSSDresponse($phone_number, $cheaps_new_customer_response["OPTION_TWO"], true);
+                break;
+            case 3:
+                $cheaps->handleUSSDresponse($phone_number, $cheaps_new_customer_response["OPTION_THREE"], true);
+                break;
         }
 
         switch ($level) {
