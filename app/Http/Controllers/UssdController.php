@@ -25,6 +25,7 @@ class UssdController extends Controller
         $phone_number = $request->MSISDN;
         $customer_interaction = $request->USERDATA;
         $message_type = $request->MSGTYPE;
+        $user_id = $request->USERID;
 //        header('Content-type: text/plain');
         Log::info(json_encode($request->all()));
         $customer_data = [];
@@ -41,7 +42,7 @@ class UssdController extends Controller
         else
         {
             Log::info("Here as new user");
-            $this->handleNewUser($phone_number, $customer_interaction,$message_type);
+            $this->handleNewUser($user_id, $phone_number, $customer_interaction,$message_type);
 //            return response()->json($request->all());
         }
 
@@ -59,7 +60,7 @@ class UssdController extends Controller
     }
 
 
-    public function handleNewUser($phone_number, $customer_interaction, $message_type)
+    public function handleNewUser($user_id, $phone_number, $customer_interaction, $message_type)
     {
 //        $ussd_string_exploded = explode ("*",$ussd_string);
         $cheaps = new CheapsHandler;
@@ -81,8 +82,8 @@ class UssdController extends Controller
 //        }
         if ($message_type)
         {
-            Log::info("Handle response true");
-             CheapsHandler::handleUSSDresponse($phone_number, "Hello world", $message_type);
+            Log::info("Handle response true " . $phone_number. " ". $customer_interaction. " " . $message_type);
+             $this->handleUSSDresponse($user_id,$phone_number, "Hello world", $message_type);
         }
         Log::info("Handle response passed");
 
@@ -91,13 +92,13 @@ class UssdController extends Controller
         switch (intval($customer_interaction))
         {
             case 1:
-                $cheaps->handleUSSDresponse($phone_number, $cheaps_new_customer_response["OPTION_ONE"], true);
+                $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_ONE"], true);
                 break;
             case 2:
-                $cheaps->handleUSSDresponse($phone_number, $cheaps_new_customer_response["OPTION_TWO"], true);
+                $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_TWO"], true);
                 break;
             case 3:
-                $cheaps->handleUSSDresponse($phone_number, $cheaps_new_customer_response["OPTION_THREE"], true);
+                $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_THREE"], true);
                 break;
         }
 
@@ -363,4 +364,18 @@ class UssdController extends Controller
     //           return $this->ussd_stop("Login was unsuccessful!");
     //       }
     //   }
+
+
+    private function handleUSSDresponse ($USER_ID, $customer_phone_number, $cheaps_message, $message_type)
+    {
+        Log::info("response handler called");
+        header('Content-type: application/json');
+        $res = [
+            'USERID' => $USER_ID,
+            'MSISDN' => $customer_phone_number,
+            'MSG' => $cheaps_message,
+            'MSGTYPE' => $message_type
+        ];
+        return json_encode($res);
+    }
 }

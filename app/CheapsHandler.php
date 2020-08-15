@@ -18,12 +18,12 @@ class CheapsHandler
 
 
 
-    public static function handleUSSDresponse ($customer_phone_number, $cheaps_message, $message_type)
+    public static function handleUSSDresponse ($USER_ID, $customer_phone_number, $cheaps_message, $message_type)
     {
         Log::info("response handler called");
-        header('Content-type: application/json');
+//        header('Content-type: application/json');
         $res = [
-            'USERID' => 'CHPS_LLC',
+            'USERID' => $USER_ID,
             'MSISDN' => $customer_phone_number,
             'MSG' => $cheaps_message,
             'MSGTYPE' => $message_type
