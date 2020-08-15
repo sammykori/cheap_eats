@@ -20,7 +20,7 @@ class CheapsHandler
     {
         header('Content-type: Application/json');
         return json_encode(['USERID' => env('CHEAPSUSERID'), 'MSISDN' => $customer_phone_number, 'MSG' => $cheaps_message,
-            'MSGTYPE' => $message_type], '');
+            'MSGTYPE' => $message_type]);
     }
 
 }
