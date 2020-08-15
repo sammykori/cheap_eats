@@ -74,6 +74,8 @@ class UssdController extends Controller
             return $cheaps->handleUSSDresponse($user_id,$phone_number, $this->newUserMenu(), $message_type);
         }
 
+        Log::info(session(bcrypt($phone_number)) . "session found");
+
         $session_data = $cheaps->manage_customer_session(bcrypt($phone_number));
         Log::info(json_encode($session_data). " Before session is overwritted");
         array_push($session_data, $customer_interaction);
