@@ -116,8 +116,8 @@ class UssdController extends Controller
 
                         $customer_created = Customer::create([
                             "customer_first_name" => $first_name,
-                            "cutomer_last_name" => $last_name,
-                            "phone_nummber" => $phone_number
+                            "customer_last_name" => $last_name,
+                            "phone_number" => $phone_number
                         ]);
 
                         array_push($session_data, [
