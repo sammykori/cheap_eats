@@ -32,12 +32,14 @@ class CheapsHandler
         if (Session::has($session_id))
         {
             //retrieve session data for processing
+            Log::info("Has session id");
             $session_request = Session::get($session_id);
             return $session_request;
         }
         else
         {
             //create session
+            Log::info("No session id found");
             Session::put($session_id, json_encode([]));
             return $session_request;
         }
