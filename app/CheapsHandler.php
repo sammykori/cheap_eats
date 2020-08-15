@@ -28,8 +28,9 @@ class CheapsHandler
     public function manage_customer_session($session_id)
     {
         $session_request = [];
-
-        if (session()->has($session_id))
+        $session_id = session()->get($session_id);
+        Log::info("Session id" . $session_id);
+        if (empty($session_id))
         {
             //retrieve session data for processing
             Log::info("Has session id");
@@ -41,6 +42,7 @@ class CheapsHandler
             //create session
             Log::info("No session id found");
             session()->get($session_id, json_encode([]));
+            session()->save();
             return $session_request;
         }
     }
