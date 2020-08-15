@@ -378,6 +378,7 @@ class UssdController extends Controller
             'MSG' => $cheaps_message,
             'MSGTYPE' => $message_type
         ];
+        Log::info(json_encode($res));
         return json_encode($res);
     }
 }
