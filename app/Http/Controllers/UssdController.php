@@ -102,6 +102,8 @@ class UssdController extends Controller
                 break;
         }
 
+
+        return  $this->handleUSSDresponse($user_id,$phone_number, "Hello world", $message_type);
 //        switch ($level) {
 //            case ($level == 1 && !empty($ussd_string)):
 //                if ($ussd_string_exploded[0] == "1") {
