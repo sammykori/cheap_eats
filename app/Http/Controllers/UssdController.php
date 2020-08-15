@@ -83,7 +83,63 @@ class UssdController extends Controller
             switch ($session_data[0])
             {
                 case 1:
-                    $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_ONE"], true);
+                    if (count($session_data) == 1)
+                    {
+                        return $this->handleUSSDresponse($user_id,$phone_number,
+                        $cheaps_new_customer_response["OPTION_ONE"], true);
+                    }
+
+                    if (count($session_data) == 2 && empty($session_data[1]))
+                    {
+                        $error_message = "CHEAP EATS\nSorry invalid name or no name entered";
+                        $error_message .= "\nTry Again! :)";
+                        return $this->handleUSSDresponse($user_id,$phone_number,
+                            $error_message, false);
+                    }
+
+                    if (count($session_data) == 2 && !empty($session_data[1]))
+                    {
+                        $name_parts = explode(" ", $session_data[1]);
+                        $first_name = "";
+                        $last_name = "";
+                        if (count($name_parts) > 1)
+                        {
+                            $first_name = $cheaps->format_user_input($name_parts[0]);
+                            $last_name = $cheaps->format_user_input($name_parts[1]);
+                        }
+                        else
+                        {
+                            $first_name = $cheaps->format_user_input($name_parts[0]);
+                            $last_name = $cheaps->format_user_input($name_parts[0]);
+                        }
+
+                        $customer_created = Customer::create([
+                            "customer_first_name" => $first_name,
+                            "cutomer_last_name" => $last_name,
+                            "phone_nummber" => $phone_number
+                        ]);
+
+                        array_push($session_data, [
+                            "customer_id" =>  $customer_created->customer_id
+                        ]);
+                        return $this->handleUSSDresponse($user_id,$phone_number,
+                            $this->officeList($first_name)["data"], true);
+                    }
+
+                    if (count($session_data) > 2)
+                    {
+                        Customer::where('delete_status', 'NOT DELETED')
+                            ->where('customer_id', $session_data[3])
+                            ->update([
+                                "office_location" => $this->officeList("")["location"]
+                                [$session_data[4]]
+                            ]);
+                        $success_message = "Registered Successfully!\nWelcome to Cheaps dial Cheap Code\n";
+                        $success_message .= "again for your personalized menu";
+                        return $this->handleUSSDresponse($user_id, $phone_number, $success_message, false);
+                    }
+
+
                     break;
                 case 2:
 

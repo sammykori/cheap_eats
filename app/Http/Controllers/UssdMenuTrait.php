@@ -12,13 +12,16 @@ trait UssdMenuTrait{
         return $start;
 //        $this->ussd_proceed($start);
     }
-    public function officeList(){
-        $office = "Select delivery location\n";
-        $office .= "1. SSNIT\n";
-        $office .= "2. Marina Super Market\n";
-        $office .= "3. Nestle Square\n";
-        $office .= "4. National Communications Authority";
-        $this->ussd_proceed($office);
+    public function officeList($customer_name){
+        $office_locations = ["SSNIT", "Marina Super Market",
+            "Nestle Square", "National Communications Authority"];
+        $office = "Select delivery location $customer_name\n";
+        $office .= "1. $office_locations[0]\n";
+        $office .= "2. $office_locations[1]\n";
+        $office .= "3. $office_locations[2]\n";
+        $office .= "4. $office_locations[3]";
+        return ["location" => $office_locations, "data" => $office];
+//        $this->ussd_proceed($office);
     }
     public function foodMenu($name){
         $food = "What are feeling for today ".ucwords($name). ",\n";

@@ -43,5 +43,8 @@ class CheapsHandler
         }
     }
 
-
+    public function format_user_input(string $user_input)
+    {
+        return ucfirst(strtolower($user_input));
+    }
 }
