@@ -36,7 +36,8 @@ trait UssdMenuTrait{
                 $bf .= "$i. $menu \n";
             }
         }
-        $this->ussd_proceed($bf);
+        return $bf;
+//        $this->ussd_proceed($bf);
     }
     public function bossuMenu(){
         $menu = Menu::where([['type', '2'], ['status', 'available']])->pluck('name');
@@ -48,6 +49,7 @@ trait UssdMenuTrait{
                 $lunch .= "$i. $menu \n";
             }
         }
-        $this->ussd_proceed($lunch);
+        return $lunch;
+//        $this->ussd_proceed($lunch);
     }
 }

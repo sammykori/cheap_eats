@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use App\Order;
 use App\Menu;
@@ -41,9 +43,7 @@ class UssdController extends Controller
         }
         else
         {
-            Log::info("Here as new user");
             return $this->handleNewUser($user_id, $phone_number, $customer_interaction,$message_type);
-//            return json_encode($request->all());
         }
 
 
@@ -70,34 +70,46 @@ class UssdController extends Controller
             "OPTION_THREE" => "For more information\nPlease contact 0542857108\nCome Again"
         ];
 
-
-        // Get menu level from ussd_string reply
-//        $level = count($ussd_string_exploded);
-
-//        if(empty($ussd_string) or $level == 0) {
-//             $this->newUserMenu(); // show the home menu
-//        }
         if ($message_type)
         {
-//            Log::info("Handle response true " . $phone_number. " ". $customer_interaction. " " . $message_type);
             return $cheaps->handleUSSDresponse($user_id,$phone_number, $this->newUserMenu(), $message_type);
         }
-//        Log::info("Handle response passed");
 
+        $session_data = json_decode($cheaps->manage_customer_session(bcrypt($phone_number)));
+        array_push($session_data, $customer_interaction);
 
+        if (count($session_data) > 0)
+        {
+            switch ($session_data[0])
+            {
+                case 1:
+                    $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_ONE"], true);
+                    break;
+                case 2:
 
-//        switch (intval($customer_interaction))
-//        {
-//            case 1:
-//                $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_ONE"], true);
-//                break;
-//            case 2:
-//                $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_TWO"], true);
-//                break;
-//            case 3:
-//                $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_THREE"], true);
-//                break;
-//        }
+                    if (count($session_data) == 1)
+                    {
+                        return $cheaps->handleUSSDresponse($user_id,$phone_number,
+                        $cheaps_new_customer_response["OPTION_TWO"], true);
+                    }
+
+                    if ($session_data[1] == 1)
+                    {
+                        //Worker menu
+                        return $cheaps->handleUSSDresponse($user_id, $phone_number, $this->workerMenu(), true);
+                    }
+                    else if ($session_data[1] == 2)
+                    {
+                        // Boss menu
+                        return $cheaps->handleUSSDresponse($user_id, $phone_number, $this->bossuMenu(), true);
+                    }
+                    break;
+                case 3:
+                    $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_THREE"], true);
+                    break;
+            }
+        }
+
 
 
         return  $this->handleUSSDresponse($user_id, $phone_number, "Hello World", $message_type);
