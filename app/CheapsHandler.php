@@ -30,7 +30,7 @@ class CheapsHandler
         $session_request = [];
         $session_id = session()->get($session_id);
         Log::info("Session id" . $session_id);
-        if (empty($session_id))
+        if (!empty($session_id))
         {
             //retrieve session data for processing
             Log::info("Has session id");
