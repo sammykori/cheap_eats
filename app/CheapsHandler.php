@@ -4,6 +4,8 @@
 namespace App;
 
 
+use Illuminate\Support\Facades\Log;
+
 class CheapsHandler
 {
 
@@ -18,7 +20,7 @@ class CheapsHandler
 
     public function handleUSSDresponse ($customer_phone_number, $cheaps_message, $message_type)
     {
-//        header('Content-type: Application/json');
+        Log::info("response handler called");
         return json_encode(['USERID' => 'CHPS_LLC', 'MSISDN' => $customer_phone_number, 'MSG' => $cheaps_message,
             'MSGTYPE' => $message_type]);
     }

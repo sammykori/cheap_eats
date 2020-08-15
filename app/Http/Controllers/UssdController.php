@@ -68,6 +68,11 @@ class UssdController extends Controller
             "OPTION_TWO" => "Menu\n1. Worker Menu\n2. Boss Menu",
             "OPTION_THREE" => "For more information\nPlease contact 0542857108\nCome Again"
         ];
+
+        $start  = "Welcome to CHEAP->EATS\n";
+        $start .= "1. Register\n";
+        $start .= "2. Menu\n";
+        $start .= "3. Exit";
         // Get menu level from ussd_string reply
 //        $level = count($ussd_string_exploded);
 
@@ -77,7 +82,7 @@ class UssdController extends Controller
         if ($message_type)
         {
             Log::info("Handle response true");
-            return $cheaps->handleUSSDresponse($phone_number,$this->newUserMenu(), $message_type);
+            return $cheaps->handleUSSDresponse($phone_number, "Hello world", $message_type);
         }
         Log::info("Handle response passed");
 
