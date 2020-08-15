@@ -82,7 +82,7 @@ class UssdController extends Controller
         if ($message_type)
         {
             Log::info("Handle response true");
-            return $cheaps->handleUSSDresponse($phone_number, "Hello world", $message_type);
+             CheapsHandler::handleUSSDresponse($phone_number, "Hello world", $message_type);
         }
         Log::info("Handle response passed");
 
