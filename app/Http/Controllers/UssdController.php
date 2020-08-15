@@ -103,7 +103,7 @@ class UssdController extends Controller
         }
 
 
-        return  $this->handleUSSDresponse($user_id,$phone_number, "Hello world", $message_type);
+        return  response()->json($this->handleUSSDresponse($user_id,$phone_number, "Hello world", $message_type));
 //        switch ($level) {
 //            case ($level == 1 && !empty($ussd_string)):
 //                if ($ussd_string_exploded[0] == "1") {
@@ -371,7 +371,7 @@ class UssdController extends Controller
     private function handleUSSDresponse ($USER_ID, $customer_phone_number, $cheaps_message, $message_type)
     {
         Log::info("response handler called");
-        header('Content-type: application/json');
+//        header('Content-type: application/json');
         $res = [
             'USERID' => $USER_ID,
             'MSISDN' => $customer_phone_number,

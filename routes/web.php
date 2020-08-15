@@ -18,6 +18,7 @@ Route::get('/', function () {
 });
 
 Route::post('/ussd', 'UssdController@ussdRequestHandler');
+Route::post('/ussd2', 'UssdController@ussdRequestHandler');
 
 Auth::routes();
 
