@@ -75,7 +75,7 @@ class UssdController extends Controller
             return $cheaps->handleUSSDresponse($user_id,$phone_number, $this->newUserMenu(), $message_type);
         }
 
-        $session_data = json_decode($cheaps->manage_customer_session(bcrypt($phone_number)));
+        $session_data = $cheaps->manage_customer_session(bcrypt($phone_number));
         array_push($session_data, $customer_interaction);
 
         if (count($session_data) > 0)
