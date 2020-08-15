@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Order;
 use App\Menu;
@@ -25,7 +26,7 @@ class UssdController extends Controller
         $customer_interaction = $request->USERDATA;
         $message_type = $request->MSGTYPE;
 //        header('Content-type: text/plain');
-
+        Log::info(json_encode($request->all()));
         $customer_data = [];
 
         if ($message_type)
