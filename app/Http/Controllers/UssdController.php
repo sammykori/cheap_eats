@@ -43,7 +43,7 @@ class UssdController extends Controller
         {
             Log::info("Here as new user");
 //            $this->handleNewUser($user_id, $phone_number, $customer_interaction,false);
-            return response()->json($request->all());
+            return json_encode($request->all());
         }
 
 
