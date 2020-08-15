@@ -24,7 +24,7 @@ class UssdController extends Controller
         $phone_number = $request->MSISDN;
         $customer_interaction = $request->USERDATA;
         $message_type = $request->MSGTYPE;
-        header('Content-type: text/plain');
+//        header('Content-type: text/plain');
 
         $customer_data = [];
 
@@ -40,6 +40,7 @@ class UssdController extends Controller
         else
         {
             $this->handleNewUser($phone_number, $customer_interaction,$message_type);
+            return response()->json($request->all());
         }
 
 
