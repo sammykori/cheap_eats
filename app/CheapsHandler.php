@@ -18,7 +18,7 @@ class CheapsHandler
 
 
 
-    public static function handleUSSDresponse ($USER_ID, $customer_phone_number, $cheaps_message, $message_type)
+    public  function handleUSSDresponse ($USER_ID, $customer_phone_number, $cheaps_message, $message_type)
     {
         Log::info("response handler called");
 //        header('Content-type: application/json');
