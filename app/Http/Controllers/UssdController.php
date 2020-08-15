@@ -39,8 +39,8 @@ class UssdController extends Controller
         }
         else
         {
-            $this->handleNewUser($phone_number, $customer_interaction,$message_type);
-            return response()->json($request->all());
+           return $this->handleNewUser($phone_number, $customer_interaction,$message_type);
+//            return response()->json($request->all());
         }
 
 
