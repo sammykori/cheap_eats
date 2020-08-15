@@ -83,7 +83,7 @@ class UssdController extends Controller
         if ($message_type)
         {
 //            Log::info("Handle response true " . $phone_number. " ". $customer_interaction. " " . $message_type);
-             $this->handleUSSDresponse($user_id,$phone_number, $start, $message_type);
+            return $this->handleUSSDresponse($user_id,$phone_number, $start, $message_type);
         }
 //        Log::info("Handle response passed");
 
