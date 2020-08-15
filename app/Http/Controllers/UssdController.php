@@ -40,7 +40,8 @@ class UssdController extends Controller
         }
         else
         {
-           return $this->handleNewUser($phone_number, $customer_interaction,$message_type);
+            Log::info("Here as new user");
+            $this->handleNewUser($phone_number, $customer_interaction,$message_type);
 //            return response()->json($request->all());
         }
 
@@ -75,8 +76,12 @@ class UssdController extends Controller
 //        }
         if ($message_type)
         {
-            $cheaps->handleUSSDresponse($phone_number,$this->newUserMenu(), $message_type);
+            Log::info("Handle response true");
+            return $cheaps->handleUSSDresponse($phone_number,$this->newUserMenu(), $message_type);
         }
+        Log::info("Handle response passed");
+
+
 
         switch (intval($customer_interaction))
         {
