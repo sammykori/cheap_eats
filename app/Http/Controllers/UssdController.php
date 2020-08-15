@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Cache\RedisStore;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use App\Order;
@@ -23,11 +25,17 @@ class UssdController extends Controller
     {
         $sessionId   = $request["sessionId"];
         $serviceCode = $request["serviceCode"];
+
         $cheaps = new CheapsHandler;
         $phone_number = $request->MSISDN;
         $customer_interaction = $request->USERDATA;
         $message_type = $request->MSGTYPE;
         $user_id = $request->USERID;
+
+//        $redis = app()->make('redis');
+//        $redis->set('name', 'kofi');
+        Redis::lpush('name', 4);
+//        $redis = Redis::set('name', 'Cole');
 
         $customer_data = [];
 
@@ -63,6 +71,8 @@ class UssdController extends Controller
     {
 //        $ussd_string_exploded = explode ("*",$ussd_string);
         $cheaps = new CheapsHandler;
+        $session_id = base64_encode($phone_number);
+        $session_data = [];
         $cheaps_new_customer_response = [
             "OPTION_ONE" => "Enter your name. (E.g. Samuel Kori)",
             "OPTION_TWO" => "Menu\n1. Worker Menu\n2. Boss Menu",
@@ -71,31 +81,30 @@ class UssdController extends Controller
 
         if ($message_type)
         {
+            Redis::rpush($session_id, "");
             return $cheaps->handleUSSDresponse($user_id,$phone_number, $this->newUserMenu(), $message_type);
         }
-
-        Log::info(session(bcrypt($phone_number)) . "session found");
-
-        $session_data = $cheaps->manage_customer_session(bcrypt($phone_number));
-        Log::info(json_encode($session_data). " Before session is overwritted");
-        array_push($session_data, $customer_interaction);
-//        session()->forget(bcrypt($phone_number));
-        session()->push(bcrypt($phone_number), json_encode($session_data));
-        session()->save();
+        Redis::rpush($session_id, $customer_interaction);
+//        $session_data = $cheaps->manage_customer_session($session_id);
+//        Log::info(json_encode($session_data). " Before session is overwritted");
+        if (Redis::exists($session_id))
+        {
+            $session_data = Redis::lrange($session_id, 0, -1);
+        }
 
         Log::info(json_encode($session_data). " session data");
         if (count($session_data) > 0)
         {
-            switch ($session_data[0])
+            switch ($session_data[1])
             {
                 case 1:
-                    if (count($session_data) == 1)
+                    if (count($session_data) == 2)
                     {
                         return $cheaps->handleUSSDresponse($user_id,$phone_number,
                         $cheaps_new_customer_response["OPTION_ONE"], true);
                     }
 
-                    if (count($session_data) == 2 && empty($session_data[1]))
+                    if (count($session_data) == 3 && empty($session_data[2]))
                     {
                         $error_message = "CHEAP EATS\nSorry invalid name or no name entered";
                         $error_message .= "\nTry Again! :)";
@@ -103,9 +112,9 @@ class UssdController extends Controller
                             $error_message, false);
                     }
 
-                    if (count($session_data) == 2 && !empty($session_data[1]))
+                    if (count($session_data) == 3 && !empty($session_data[2]))
                     {
-                        $name_parts = explode(" ", $session_data[1]);
+                        $name_parts = explode(" ", $session_data[2]);
                         $first_name = "";
                         $last_name = "";
                         if (count($name_parts) > 1)
@@ -125,42 +134,43 @@ class UssdController extends Controller
                             "phone_number" => $phone_number
                         ]);
 
-                        array_push($session_data, [
-                            "customer_id" =>  $customer_created->customer_id
-                        ]);
+//                        array_push($session_data, [
+//                            "customer_id" =>  $customer_created->customer_id
+//                        ]);
+                        Redis::rpush($session_id, $customer_created->customer_id);
                         return $cheaps->handleUSSDresponse($user_id,$phone_number,
                             $this->officeList($first_name)["data"], true);
                     }
 
-                    if (count($session_data) > 2)
+                    if (count($session_data) > 3)
                     {
                         Customer::where('delete_status', 'NOT DELETED')
                             ->where('customer_id', $session_data[3])
                             ->update([
                                 "office_location" => $this->officeList("")["location"]
-                                [$session_data[4]]
+                                [$session_data[3] - 1]
                             ]);
                         $success_message = "Registered Successfully!\nWelcome to Cheaps dial Cheap Code\n";
                         $success_message .= "again for your personalized menu";
+                        Redis::del($session_id);
                         return $cheaps->handleUSSDresponse($user_id, $phone_number, $success_message, false);
                     }
-
 
                     break;
                 case 2:
 
-                    if (count($session_data) == 1)
+                    if (count($session_data) == 2)
                     {
                         return $cheaps->handleUSSDresponse($user_id,$phone_number,
                         $cheaps_new_customer_response["OPTION_TWO"], true);
                     }
 
-                    if ($session_data[1] == 1)
+                    if ($session_data[2] == 2)
                     {
                         //Worker menu
                         return $cheaps->handleUSSDresponse($user_id, $phone_number, $this->workerMenu(), true);
                     }
-                    else if ($session_data[1] == 2)
+                    else if ($session_data[2] == 3)
                     {
                         // Boss menu
                         return $cheaps->handleUSSDresponse($user_id, $phone_number, $this->bossuMenu(), true);

@@ -5,6 +5,7 @@ namespace App;
 
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Session;
 
 class CheapsHandler
@@ -28,21 +29,18 @@ class CheapsHandler
     public function manage_customer_session($session_id)
     {
         $session_request = [];
-        $session_id = session()->get($session_id);
-        Log::info("Session id" . $session_id);
-        if (!empty($session_id))
+        if (Redis::exists($session_id))
         {
             //retrieve session data for processing
             Log::info("Has session id");
-            $session_request = session()->get($session_id);
+            $session_request = Redis::lrange($session_id, 0, -1);
             return $session_request;
         }
         else
         {
             //create session
-            Log::info("No session id found");
-            session()->get($session_id, json_encode([]));
-            session()->save();
+            Redis::rpush($session_id, "");
+            $session_request = Redis::lrange($session_id, 0, -1);
             return $session_request;
         }
     }
