@@ -40,7 +40,7 @@ class CheapsHandler
         {
             //create session
             Log::info("No session id found");
-            session()->gets($session_id, json_encode([]));
+            session()->get($session_id, json_encode([]));
             return $session_request;
         }
     }
