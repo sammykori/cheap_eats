@@ -103,9 +103,7 @@ class UssdController extends Controller
 //        }
 
 
-        return  response()->json([
-            "data" => "Hello World"
-        ]);
+        return  $this->handleUSSDresponse($user_id, $phone_number, "Hello World", $message_type);
 //        switch ($level) {
 //            case ($level == 1 && !empty($ussd_string)):
 //                if ($ussd_string_exploded[0] == "1") {
