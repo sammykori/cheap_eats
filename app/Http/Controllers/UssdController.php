@@ -77,8 +77,9 @@ class UssdController extends Controller
 
         $session_data = $cheaps->manage_customer_session(bcrypt($phone_number));
         array_push($session_data, $customer_interaction);
-        Log::info(json_encode($session_data). " session data");
+        Session::put(bcrypt($phone_number), $session_data);
 
+        Log::info(json_encode($session_data). " session data");
         if (count($session_data) > 0)
         {
             switch ($session_data[0])
