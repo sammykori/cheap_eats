@@ -28,8 +28,7 @@ class UssdController extends Controller
         $customer_interaction = $request->USERDATA;
         $message_type = $request->MSGTYPE;
         $user_id = $request->USERID;
-//        header('Content-type: text/plain');
-        Log::info(json_encode($request->all()));
+
         $customer_data = [];
 
         if ($message_type)
@@ -76,6 +75,7 @@ class UssdController extends Controller
         }
 
         $session_data = $cheaps->manage_customer_session(bcrypt($phone_number));
+        Log::info(json_encode($session_data). " Before session is overwritted");
         array_push($session_data, $customer_interaction);
         Session::put(bcrypt($phone_number), $session_data);
 
@@ -87,7 +87,7 @@ class UssdController extends Controller
                 case 1:
                     if (count($session_data) == 1)
                     {
-                        return $this->handleUSSDresponse($user_id,$phone_number,
+                        return $cheaps->handleUSSDresponse($user_id,$phone_number,
                         $cheaps_new_customer_response["OPTION_ONE"], true);
                     }
 
@@ -95,7 +95,7 @@ class UssdController extends Controller
                     {
                         $error_message = "CHEAP EATS\nSorry invalid name or no name entered";
                         $error_message .= "\nTry Again! :)";
-                        return $this->handleUSSDresponse($user_id,$phone_number,
+                        return $cheaps->handleUSSDresponse($user_id,$phone_number,
                             $error_message, false);
                     }
 
@@ -124,7 +124,7 @@ class UssdController extends Controller
                         array_push($session_data, [
                             "customer_id" =>  $customer_created->customer_id
                         ]);
-                        return $this->handleUSSDresponse($user_id,$phone_number,
+                        return $cheaps->handleUSSDresponse($user_id,$phone_number,
                             $this->officeList($first_name)["data"], true);
                     }
 
@@ -138,7 +138,7 @@ class UssdController extends Controller
                             ]);
                         $success_message = "Registered Successfully!\nWelcome to Cheaps dial Cheap Code\n";
                         $success_message .= "again for your personalized menu";
-                        return $this->handleUSSDresponse($user_id, $phone_number, $success_message, false);
+                        return $cheaps->handleUSSDresponse($user_id, $phone_number, $success_message, false);
                     }
 
 
@@ -437,7 +437,7 @@ class UssdController extends Controller
 
     private function handleUSSDresponse ($USER_ID, $customer_phone_number, $cheaps_message, $message_type)
     {
-        Log::info("response handler called");
+//        Log::info("response handler called");
 //        header('Content-type: application/json');
         $res = [
             'USERID' => $USER_ID,
