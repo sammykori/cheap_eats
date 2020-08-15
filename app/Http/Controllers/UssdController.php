@@ -80,30 +80,32 @@ class UssdController extends Controller
 //        if(empty($ussd_string) or $level == 0) {
 //             $this->newUserMenu(); // show the home menu
 //        }
-        if ($message_type)
-        {
-            Log::info("Handle response true " . $phone_number. " ". $customer_interaction. " " . $message_type);
-             $this->handleUSSDresponse($user_id,$phone_number, "Hello world", $message_type);
-        }
-        Log::info("Handle response passed");
+//        if ($message_type)
+//        {
+//            Log::info("Handle response true " . $phone_number. " ". $customer_interaction. " " . $message_type);
+//             $this->handleUSSDresponse($user_id,$phone_number, "Hello world", $message_type);
+//        }
+//        Log::info("Handle response passed");
 
 
 
-        switch (intval($customer_interaction))
-        {
-            case 1:
-                $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_ONE"], true);
-                break;
-            case 2:
-                $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_TWO"], true);
-                break;
-            case 3:
-                $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_THREE"], true);
-                break;
-        }
+//        switch (intval($customer_interaction))
+//        {
+//            case 1:
+//                $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_ONE"], true);
+//                break;
+//            case 2:
+//                $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_TWO"], true);
+//                break;
+//            case 3:
+//                $this->handleUSSDresponse($user_id,$phone_number, $cheaps_new_customer_response["OPTION_THREE"], true);
+//                break;
+//        }
 
 
-        return  response()->json($this->handleUSSDresponse($user_id,$phone_number, "Hello world", $message_type));
+        return  response()->json([
+            "data" => "Hello World"
+        ]);
 //        switch ($level) {
 //            case ($level == 1 && !empty($ussd_string)):
 //                if ($ussd_string_exploded[0] == "1") {
