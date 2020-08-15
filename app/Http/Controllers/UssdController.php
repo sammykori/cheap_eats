@@ -42,7 +42,7 @@ class UssdController extends Controller
         else
         {
             Log::info("Here as new user");
-            return $this->handleNewUser($user_id, $phone_number, $customer_interaction,false);
+            return $this->handleNewUser($user_id, $phone_number, $customer_interaction,$message_type);
 //            return json_encode($request->all());
         }
 
@@ -80,11 +80,11 @@ class UssdController extends Controller
 //        if(empty($ussd_string) or $level == 0) {
 //             $this->newUserMenu(); // show the home menu
 //        }
-//        if ($message_type)
-//        {
+        if ($message_type)
+        {
 //            Log::info("Handle response true " . $phone_number. " ". $customer_interaction. " " . $message_type);
-//             $this->handleUSSDresponse($user_id,$phone_number, "Hello world", $message_type);
-//        }
+             $this->handleUSSDresponse($user_id,$phone_number, $start, $message_type);
+        }
 //        Log::info("Handle response passed");
 
 
