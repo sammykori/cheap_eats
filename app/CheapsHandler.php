@@ -29,18 +29,18 @@ class CheapsHandler
     {
         $session_request = [];
 
-        if (Session::has($session_id))
+        if (session()->has($session_id))
         {
             //retrieve session data for processing
             Log::info("Has session id");
-            $session_request = Session::get($session_id);
+            $session_request = session()->get($session_id);
             return $session_request;
         }
         else
         {
             //create session
             Log::info("No session id found");
-            Session::put($session_id, json_encode([]));
+            session()->gets($session_id, json_encode([]));
             return $session_request;
         }
     }
