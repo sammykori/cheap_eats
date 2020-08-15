@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.2.5",
+        "ext-json": "*",
         "africastalking/africastalking": "^2.4",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^1.0",
@@ -17,7 +18,7 @@
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.1",
         "pear/http_request2": "^2.4",
-      "ext-json": "*"
+        "predis/predis": "^1.1"
     },
     "require-dev": {
         "facade/ignition": "^2.0",
