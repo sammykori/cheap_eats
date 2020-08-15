@@ -24,6 +24,7 @@ class UssdController extends Controller
         $phone_number = $request->MSISDN;
         $customer_interaction = $request->USERDATA;
         $message_type = $request->MSGTYPE;
+        header('Content-type: text/plain');
 
         $customer_data = [];
 
@@ -43,16 +44,15 @@ class UssdController extends Controller
 
 
 
-        header('Content-type: text/plain');
 
-        if(Customer::where('phone', $phone)->exists()){
-            // Function to handle already registered users
-            $name = Customer::where('phone', $phone)->pluck('name');
-            $this->handleReturnUser($text, $phone, $name[0]);
-        }else {
-             // Function to handle new users
-             $this->handleNewUser($text, $phone);
-        }
+//        if(Customer::where('phone', $phone)->exists()){
+//            // Function to handle already registered users
+//            $name = Customer::where('phone', $phone)->pluck('name');
+//            $this->handleReturnUser($text, $phone, $name[0]);
+//        }else {
+//             // Function to handle new users
+//             $this->handleNewUser($text, $phone);
+//        }
     }
 
 
@@ -89,87 +89,87 @@ class UssdController extends Controller
                 break;
         }
 
-        switch ($level) {
-            case ($level == 1 && !empty($ussd_string)):
-                if ($ussd_string_exploded[0] == "1") {
-                    // If user selected 1 send them to the registration menu
-                    $this->ussd_proceed("Please enter your full name. \n eg: Jane Doe");
-                } else if ($ussd_string_exploded[0] == "2") {
-                    //If user selected 2, send them the information
-                    $this->foodMenu('');
-                } else if ($ussd_string_exploded[0] == "3") {
-                    //If user selected 3, exit
-                    $this->ussd_stop("For more information please call");
-                }
-            break;
-            case 2:
-                if($ussd_string_exploded[0] == "1" && !empty($ussd_string_exploded[1])){
-                    $this->officeList();
-                }
-                else if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[1])){
-                    if($ussd_string_exploded[1] == "1"){
-                        $this->workerMenu();
-                    }
-                    else if($ussd_string_exploded[1] == "2"){
-                        $this->bossuMenu();
-                    }
-                }
-
-            break;
-            case 3:
-                if($ussd_string_exploded[0] == "1" && !empty($ussd_string_exploded[2])){
-                    if($this->ussdRegister($ussd_string_exploded[1],$ussd_string_exploded[2], $phone) == "success"){
-                        $name = Customer::where('phone', $phone)->pluck('name');
-                        $this->ussd_proceed("Welcome to Cheaps!\nDial the Cheap Code again for your personalized menu");
-                    }
-
-                }else if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[2])){
-                    $this->ussd_proceed("Quantity preferred,\n NB: Quantity more than 10 will take more time \n");
-                }
-            break;
-            case 4:
-                if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[3])){
-                    $this->amount *= (int)$ussd_string_exploded[3];
-                    $this->ussd_proceed("Please enter full name of Contact person \n");
-                }
-            break;
-            case 5:
-                if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[4])){
-                    $this->officeList();
-                }
-            break;
-            case 6:
-                if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[5])){
-                    $int = (int)$ussd_string_exploded[3];
-                    $this->amount *= $int;
-                    $this->ussd_proceed("Name: ".$ussd_string_exploded[4]." (" .$phone.") \n Order: ".$ussd_string_exploded[2]." (". $ussd_string_exploded[3].") \n  Price: GHS ".$this->amount." \n 1. Confirm \n 2. Cancel" );
-                }
-            break;
-            case 7:
-                if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[6])){
-                    if($ussd_string_exploded[6] == "1"){
-                        $uuid = $this->generateUuid();
-                        $int = (int)$ussd_string_exploded[3];
-                        $this->amount *= $int;
-                        $status = $this->requestToPay($uuid, $this->amount, $phone);
-                        if($status == "202"){
-                            $response = $this->requestPayStatus($uuid);
-                                if($response->status = "SUCCESSFUL"){
-                                    $this->placeOrder($phone, $ussd_string_exploded, $uuid);
-                                }
-                            $this->ussd_stop("Order Confirmed ".$response->status);
-
-                        }
-                        else{
-                            $this->ussd_stop("User Momo Account not Active\n".$uuid);
-                        }
-                    }else if($ussd_string_exploded[6] == "2"){
-                        $this->ussd_stop("Thank you. Do come again ;)");
-                    }
-                }
-            break;
-            // N/B: There are no more cases handled as the following requests will be handled by return user
-        }
+//        switch ($level) {
+//            case ($level == 1 && !empty($ussd_string)):
+//                if ($ussd_string_exploded[0] == "1") {
+//                    // If user selected 1 send them to the registration menu
+//                    $this->ussd_proceed("Please enter your full name. \n eg: Jane Doe");
+//                } else if ($ussd_string_exploded[0] == "2") {
+//                    //If user selected 2, send them the information
+//                    $this->foodMenu('');
+//                } else if ($ussd_string_exploded[0] == "3") {
+//                    //If user selected 3, exit
+//                    $this->ussd_stop("For more information please call");
+//                }
+//            break;
+//            case 2:
+//                if($ussd_string_exploded[0] == "1" && !empty($ussd_string_exploded[1])){
+//                    $this->officeList();
+//                }
+//                else if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[1])){
+//                    if($ussd_string_exploded[1] == "1"){
+//                        $this->workerMenu();
+//                    }
+//                    else if($ussd_string_exploded[1] == "2"){
+//                        $this->bossuMenu();
+//                    }
+//                }
+//
+//            break;
+//            case 3:
+//                if($ussd_string_exploded[0] == "1" && !empty($ussd_string_exploded[2])){
+//                    if($this->ussdRegister($ussd_string_exploded[1],$ussd_string_exploded[2], $phone) == "success"){
+//                        $name = Customer::where('phone', $phone)->pluck('name');
+//                        $this->ussd_proceed("Welcome to Cheaps!\nDial the Cheap Code again for your personalized menu");
+//                    }
+//
+//                }else if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[2])){
+//                    $this->ussd_proceed("Quantity preferred,\n NB: Quantity more than 10 will take more time \n");
+//                }
+//            break;
+//            case 4:
+//                if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[3])){
+//                    $this->amount *= (int)$ussd_string_exploded[3];
+//                    $this->ussd_proceed("Please enter full name of Contact person \n");
+//                }
+//            break;
+//            case 5:
+//                if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[4])){
+//                    $this->officeList();
+//                }
+//            break;
+//            case 6:
+//                if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[5])){
+//                    $int = (int)$ussd_string_exploded[3];
+//                    $this->amount *= $int;
+//                    $this->ussd_proceed("Name: ".$ussd_string_exploded[4]." (" .$phone.") \n Order: ".$ussd_string_exploded[2]." (". $ussd_string_exploded[3].") \n  Price: GHS ".$this->amount." \n 1. Confirm \n 2. Cancel" );
+//                }
+//            break;
+//            case 7:
+//                if($ussd_string_exploded[0] == "2" && !empty($ussd_string_exploded[6])){
+//                    if($ussd_string_exploded[6] == "1"){
+//                        $uuid = $this->generateUuid();
+//                        $int = (int)$ussd_string_exploded[3];
+//                        $this->amount *= $int;
+//                        $status = $this->requestToPay($uuid, $this->amount, $phone);
+//                        if($status == "202"){
+//                            $response = $this->requestPayStatus($uuid);
+//                                if($response->status = "SUCCESSFUL"){
+//                                    $this->placeOrder($phone, $ussd_string_exploded, $uuid);
+//                                }
+//                            $this->ussd_stop("Order Confirmed ".$response->status);
+//
+//                        }
+//                        else{
+//                            $this->ussd_stop("User Momo Account not Active\n".$uuid);
+//                        }
+//                    }else if($ussd_string_exploded[6] == "2"){
+//                        $this->ussd_stop("Thank you. Do come again ;)");
+//                    }
+//                }
+//            break;
+//            // N/B: There are no more cases handled as the following requests will be handled by return user
+//        }
     }
 
     public function generateUuid(){

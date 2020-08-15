@@ -18,6 +18,7 @@ class CheapsHandler
 
     public function handleUSSDresponse ($customer_phone_number, $cheaps_message, $message_type)
     {
+        header('Content-type: Application/json');
         return json_encode(['USERID' => env('CHEAPSUSERID'), 'MSISDN' => $customer_phone_number, 'MSG' => $cheaps_message,
             'MSGTYPE' => $message_type], '');
     }
