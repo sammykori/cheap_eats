@@ -38,13 +38,13 @@ trait UssdMenuTrait{
         $i = 0;
         $keys = [];
         Log::info(json_encode($menus) . " for menu");
-        if(count($menus) > 0){
+//        if(count($menus) > 0){
             foreach ($menus as $key => $menu) {
                 $i++;
-                $bf .= "$i. food$i \n";
+                $bf .= "$i. $menu \n";
                 $keys[$i] = $key;
             }
-        }
+//        }
         return ["data" => $bf, "menu" => $menus, "keys" => $keys];
 //        $this->ussd_proceed($bf);
     }
