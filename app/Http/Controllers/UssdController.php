@@ -35,11 +35,6 @@ class UssdController extends Controller
         $message_type = $request->MSGTYPE;
         $user_id = $request->USERID;
 
-//        $redis = app()->make('redis');
-//        $redis->set('name', 'kofi');
-        Redis::lpush('name', 4);
-//        $redis = Redis::set('name', 'Cole');
-
         $customer_data = [];
 
         if ($message_type)
