@@ -176,6 +176,7 @@ class UssdController extends Controller
                         //Worker menu
                         Redis::hset($session_id, 'category_id', 1);
                         if (count($session_data) == 2) {
+                            Log::info(json_encode($this->workerMenu()["data"]));
                             return $cheaps->handleUSSDresponse($user_id, $phone_number,
                                 $this->workerMenu()["data"], true);
                         }
