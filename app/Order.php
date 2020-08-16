@@ -41,4 +41,9 @@ class Order extends Model
         return $this->hasOne(Order_delivery::class, 'orders_order_id', 'order_id')
             ->where('delete_status', '=', 'NOT DELETED');
     }
+
+    public  function order_for_no_customer () : HasMany
+    {
+        return $this->hasMany(OrderForNonCustomer::class, 'order_for_non_customers_order_for_non_customer_id', 'order_for_non_customer_id');
+    }
 }

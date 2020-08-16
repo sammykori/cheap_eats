@@ -21,7 +21,7 @@ class CreateMenusTable extends Migration
             $table->string('short_description')->nullable();
             $table->string('long_description')->nullable();
             $table->string('food_image_path')->nullable();
-            $table->string('menu_status');
+            $table->enum('menu_status', ['AVAILABLE', 'UNAVAILABLE'])->default('AVAILABLE');
             $table->enum('delete_status', ['DELETED','NOT DELETED'])->default('NOT DELETED');
             $table->timestamps();
         });

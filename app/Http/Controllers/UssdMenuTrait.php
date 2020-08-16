@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 use App\Menu;
+use Illuminate\Support\Facades\Log;
 
 trait UssdMenuTrait{
 
@@ -24,26 +25,31 @@ trait UssdMenuTrait{
 //        $this->ussd_proceed($office);
     }
     public function foodMenu($name){
-        $food = "What are feeling for today ".ucwords($name). ",\n";
+        $food = "What are feeling for today ". ucwords($name). ",\n";
         $food .= "1. Worker Meal (GHS 10.00)\n";
         $food .= "2. Bossu Meal (GHS 20.00)\n";
-        $this->ussd_proceed($food);
+//        $this->ussd_proceed($food);
+        return $food;
     }
+
     public function workerMenu(){
-        $menu = Menu::where([['type', '1'], ['status', 'available']])->pluck('name');
+        $menus = Menu::where([['food_type', 'worker menu'], ['menu_status', 'available']])->pluck('food_name', 'menu_id');
         $bf = "Worker meal | All meals cost GHS 10.00\n";
         $i = 0;
-        if(count($menu) > 0){
-            foreach ($menu as $menu) {
+        $keys = [];
+        Log::info(json_encode($menus) . " for menu");
+        if(count($menus) > 0){
+            foreach ($menus as $key => $menu) {
                 $i++;
                 $bf .= "$i. $menu \n";
+                $keys[$i] = $key;
             }
         }
-        return $bf;
+        return ["data" => $bf, "menu" => $menus, "keys" => $keys];
 //        $this->ussd_proceed($bf);
     }
     public function bossuMenu(){
-        $menu = Menu::where([['type', '2'], ['status', 'available']])->pluck('name');
+        $menu = Menu::where([['food_type', 'bossu menu'], ['menu_status', 'available']])->pluck('food_name', 'menu_id');
         $lunch = "Bossu meal | All meals cost GHS 20.00\n ";
         $i = 0;
         if(count($menu) > 0){
@@ -52,7 +58,7 @@ trait UssdMenuTrait{
                 $lunch .= "$i. $menu \n";
             }
         }
-        return $lunch;
+        return ["data" => $lunch, "menu" => $menu];
 //        $this->ussd_proceed($lunch);
     }
 }
