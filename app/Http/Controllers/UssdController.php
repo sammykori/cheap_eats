@@ -211,8 +211,10 @@ class UssdController extends Controller
                         }
 
                         if (count($session_data) == 4 && $session_data[3] > 5) {
+                            Redis::del('select:'.$session_id);
+                            Redis::del($session_id);
                             $message = "Please contact us on 0542833108 for bulk orders";
-                            return $cheaps->handleUSSDresponse($user_id, $phone_number, $message, true);
+                            return $cheaps->handleUSSDresponse($user_id, $phone_number, $message, false);
                         }
 
                         //check for other input which is not a digit.
