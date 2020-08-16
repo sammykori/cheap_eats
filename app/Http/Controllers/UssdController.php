@@ -35,6 +35,8 @@ class UssdController extends Controller
         $message_type = $request->MSGTYPE;
         $user_id = $request->USERID;
 
+        Log::info($request->all() . " request");
+
         $customer_data = [];
 
         if ($message_type)
@@ -79,9 +81,9 @@ class UssdController extends Controller
 
         if ($message_type)
         {
-//            Redis::rpush($session_id, "");
             return $cheaps->handleUSSDresponse($user_id,$phone_number, $this->newUserMenu(), $message_type);
         }
+
         Redis::rpush('select:'.$session_id, $customer_interaction);
         if (Redis::exists('select:'.$session_id))
         {
