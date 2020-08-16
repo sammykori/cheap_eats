@@ -42,12 +42,12 @@ class UssdController extends Controller
         $session_id = base64_encode($phone_number);
         if (strcmp($customer_interaction, "User timeout") == 0)
         {
-            if (Redis::exits('select:'.$session_id)) {
+//            if (Redis::exits('select:'.$session_id)) {
                 Log::info("I am here at time out");
                 Redis::del('select:'.$session_id);
                 Redis::del($session_id);
                 return true;
-            }
+//            }
         }
 
         if ($message_type)
