@@ -38,6 +38,12 @@ class UssdController extends Controller
         Log::info(json_encode($request->all()) . " request");
 
         $customer_data = [];
+        $session_id = base64_encode($phone_number);
+        if (strcmp($customer_interaction, "User timeout") == 0)
+        {
+            Redis::del('select:'.$session_id);
+            Redis::del($session_id);
+        }
 
         if ($message_type)
         {
