@@ -46,6 +46,7 @@ class UssdController extends Controller
                 Log::info("I am here at time out");
                 Redis::del('select:'.$session_id);
                 Redis::del($session_id);
+                return true;
             }
         }
 
