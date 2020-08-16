@@ -92,8 +92,8 @@ class UssdController extends Controller
         {
             $session_data = Redis::lrange('select:'.$session_id, 0, -1);
             Redis::hset($session_id, 'selection', $session_data);
-            Redis::expire('select:'.$session_id, 3600);
-            Redis::expire($session_id, 3600);
+            Redis::expire('select:'.$session_id, 1500);
+            Redis::expire($session_id, 1500);
         }
 
         if (count($session_data) > 0)
