@@ -15,7 +15,7 @@ class OrderJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public array $order;
+    public  $order;
     public $session_id;
     public $uuid;
     /**
@@ -23,7 +23,7 @@ class OrderJob implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(array $order, $session_id, $uuid)
+    public function __construct( $order, $session_id, $uuid)
     {
         $this->order = $order;
         $this->session_id = $session_id;
