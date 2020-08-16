@@ -77,7 +77,7 @@ class UssdController extends Controller
         $session_id = base64_encode($phone_number);
         $session_data = [];
         $cheaps_new_customer_response = [
-            "OPTION_ONE" => "Enter your name. (E.g. Samuel Kori)",
+            "OPTION_ONE" => "Enter your name. (E.g. Jane Doe)",
             "OPTION_TWO" => "Menu\n1. Worker Menu\n2. Boss Menu",
             "OPTION_THREE" => "For more information\nPlease contact 0542857108\nCome Again"
         ];
