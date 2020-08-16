@@ -256,6 +256,8 @@ class UssdController extends Controller
                         }
 
                         if (count($session_data) == 7 && $session_data[6] == 2) {
+                            Redis::del('select:'.$session_id);
+                            Redis::del($session_id);
                            $message = "Order Cancelled.\nOrder could not be processed.";
                            return $cheaps->handleUSSDresponse($user_id, $phone_number, $message, false);
                         }
