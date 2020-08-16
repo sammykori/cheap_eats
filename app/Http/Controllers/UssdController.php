@@ -269,8 +269,8 @@ class UssdController extends Controller
                     break;
                 case 3:
 
-                    Redis::del('select:'.$this->session_id);
-                    Redis::del($this->session_id);
+                    Redis::del('select:'.$session_id);
+                    Redis::del($session_id);
                     return $cheaps->handleUSSDresponse($user_id,$phone_number,
                         $cheaps_new_customer_response["OPTION_THREE"], false);
                     break;
