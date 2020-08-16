@@ -35,15 +35,18 @@ class UssdController extends Controller
         $message_type = $request->MSGTYPE;
         $user_id = $request->USERID;
 
-        Log::info(json_encode($request->all()) . " request");
+        Log::info(json_encode($request->all()) . " request " . $request->session()->token() . " \n" .
+            $request->session()->all());
 
         $customer_data = [];
         $session_id = base64_encode($phone_number);
         if (strcmp($customer_interaction, "User timeout") == 0)
         {
-            Log::info("I am here at time out");
-            Redis::del('select:'.$session_id);
-            Redis::del($session_id);
+            if (Redis::exits('select:'.$session_id)) {
+                Log::info("I am here at time out");
+                Redis::del('select:'.$session_id);
+                Redis::del($session_id);
+            }
         }
 
         if ($message_type)
