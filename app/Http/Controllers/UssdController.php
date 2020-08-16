@@ -35,7 +35,7 @@ class UssdController extends Controller
         $message_type = $request->MSGTYPE;
         $user_id = $request->USERID;
 
-        Log::info(json_encode($request) . " request");
+        Log::info(json_encode($request->all()) . " request");
 
         $customer_data = [];
 
