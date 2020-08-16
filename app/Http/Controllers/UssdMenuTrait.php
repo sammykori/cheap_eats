@@ -34,16 +34,16 @@ trait UssdMenuTrait{
 
     public function workerMenu(){
         $menus = Menu::where([['food_type', 'worker menu'], ['menu_status', 'available']])->pluck('food_name', 'menu_id');
-        $bf = "Worker meal | All meals cost GHS 10.00\n";
+        $bf = "Worker meal  All meals cost GHS 10.00\n";
         $i = 0;
         $keys = [];
         Log::info(json_encode($menus) . " for menu");
 //        if(count($menus) > 0){
-            foreach ($menus as $key => $menu) {
-                $i++;
-                $bf .= "$i. $menu \n";
-                $keys[$i] = $key;
-            }
+//            foreach ($menus as $key => $menu) {
+//                $i++;
+//                $bf .= "$i. $menu \n";
+//                $keys[$i] = $key;
+//            }
 //        }
         return ["data" => $bf, "menu" => $menus, "keys" => $keys];
 //        $this->ussd_proceed($bf);
