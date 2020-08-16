@@ -41,7 +41,7 @@ trait UssdMenuTrait{
         if(count($menus) > 0){
             foreach ($menus as $key => $menu) {
                 $i++;
-                $bf .= "$i. $menu \n";
+                $bf .= "$i. food$i \n";
                 $keys[$i] = $key;
             }
         }
