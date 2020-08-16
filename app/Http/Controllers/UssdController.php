@@ -36,7 +36,7 @@ class UssdController extends Controller
         $user_id = $request->USERID;
 
         Log::info(json_encode($request->all()) . " request " . $request->session()->token() . " \n" .
-            $request->session()->all());
+            json_encode($request->session()->all()));
 
         $customer_data = [];
         $session_id = base64_encode($phone_number);
