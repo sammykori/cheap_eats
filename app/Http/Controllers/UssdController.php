@@ -179,19 +179,21 @@ class UssdController extends Controller
                     }
 
                     if (count($session_data) > 1 && $session_data[1] == 1) {
-                        $connection['category_id'] = 1;
-                        $connection['isregistered'] = false;
-                        return $this->customer_order($session_id, $session_data,
-                            $cheaps_new_customer_response["OPTION_TWO"], $connection, 'worker menu', $cheaps);
+//                        $connection['category_id'] = 1;
+//                        $connection['isregistered'] = false;
+//                        return $this->customer_order($session_id, $session_data,
+//                            $cheaps_new_customer_response["OPTION_TWO"], $connection, 'worker menu', $cheaps);
+                        return  $cheaps->handleUSSDresponse($connection, "Hello World");
                     }
                     else if (count($session_data) > 1 && $session_data[1] == 2)
                     {
+                        return  $cheaps->handleUSSDresponse($connection, "Hello World");
                         // Boss menu
-                        $connection['category_id'] = 2;
-                        $connection['isregistered'] = false;
-                        return $this->customer_order($session_id, $session_data,
-                            $cheaps_new_customer_response["OPTION_THREE"],$connection,
-                            'bossu menu', $cheaps);
+//                        $connection['category_id'] = 2;
+//                        $connection['isregistered'] = false;
+//                        return $this->customer_order($session_id, $session_data,
+//                            $cheaps_new_customer_response["OPTION_THREE"],$connection,
+//                            'bossu menu', $cheaps);
                     }
                     break;
                 case 3:
