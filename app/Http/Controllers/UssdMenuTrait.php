@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 use App\Menu;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 trait UssdMenuTrait{
@@ -32,21 +33,19 @@ trait UssdMenuTrait{
         return $food;
     }
 
-    public function workerMenu(){
-        $menus = Menu::where([['food_type', 'worker menu'], ['menu_status', 'available']])->pluck('food_name', 'menu_id');
-        $bf = "Worker meal \n";
+    public function allMenu($menu_type){
+        $menus = Menu::where([['food_type', $menu_type], ['menu_status', 'available']])->pluck('food_name',
+            'menu_id');
+        $bf = "$menu_type meal \n";
         $i = 0;
         $keys = [];
         Log::info(json_encode($menus) . " for menu");
-//        if(count($menus) > 0){
             foreach ($menus as $key => $menu) {
                 $i++;
                 $bf .= "$i. $menu \n";
                 $keys[$i] = $key;
             }
-//        }
         return ["data" => $bf, "menu" => $menus, "keys" => $keys];
-//        $this->ussd_proceed($bf);
     }
     public function bossuMenu(){
         $menu = Menu::where([['food_type', 'bossu menu'], ['menu_status', 'available']])->pluck('food_name', 'menu_id');

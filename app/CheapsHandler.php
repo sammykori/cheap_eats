@@ -20,10 +20,11 @@ class CheapsHandler
 
 
 
-    public  function handleUSSDresponse ($USER_ID, $customer_phone_number, $cheaps_message, $message_type)
+    public  function handleUSSDresponse ($connection, $cheaps_message)
     {
-        return json_encode(['USERID' => $USER_ID, 'MSISDN' => $customer_phone_number, 'MSG' => $cheaps_message,
-            'MSGTYPE' => $message_type]);
+        return json_encode(['USERID' => $connection['user_id'],
+            'MSISDN' => $connection['phone_number'], 'MSG' => $cheaps_message,
+            'MSGTYPE' => $connection['message_type']]);
     }
 
     public function manage_customer_session($session_id)
