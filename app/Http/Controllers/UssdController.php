@@ -71,17 +71,6 @@ class UssdController extends Controller
             return $this->handleNewUser($connection);
         }
 
-
-
-
-//        if(Customer::where('phone', $phone)->exists()){
-//            // Function to handle already registered users
-//            $name = Customer::where('phone', $phone)->pluck('name');
-//            $this->handleReturnUser($text, $phone, $name[0]);
-//        }else {
-//             // Function to handle new users
-//             $this->handleNewUser($text, $phone);
-//        }
     }
 
 
