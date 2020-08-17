@@ -19,8 +19,8 @@ class CreateOrderDeliveriesTable extends Migration
             $table->string('delivery_token');
             $table->enum('delivery_type', ['SELF','SOMEONE'])->default('SELF');
             $table->string('delivery_location');
-            $table->time("departure_time");
-            $table->time("delivery_time");
+            $table->time("departure_time")->nullable();
+            $table->time("delivery_time")->nullable();
             $table->enum('delete_status', ['DELETED', 'NOT DELETED'])->default('NOT DELETED');
             $table->timestamps();
         });

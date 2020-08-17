@@ -15,7 +15,7 @@ class CheapsHandler
     public function validate_customer($phone_number, $message_type)
     {
         return ($message_type) ? Customer::where('phone_number', $phone_number)->where('delete_status', 'NOT DELETED')
-            ->first() : null;
+            ->select('customer_id', 'customer_first_name', 'customer_last_name', 'office_location')->first() : null;
     }
 
 
