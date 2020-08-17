@@ -42,9 +42,6 @@ class UssdController extends Controller
             'isregistered' => false
         ];
 
-//        Log::info(json_encode($request->all()) . " request " . $request->session()->token() . " \n" .
-//            json_encode($request->session()->all()));
-
         $customer_data = [];
         $session_id = base64_encode($phone_number);
         if (strcmp($customer_interaction, "User timeout") == 0)
@@ -64,24 +61,17 @@ class UssdController extends Controller
 
         if ($customer_data != null)
         {
-
+            $connection['customer_interaction'] = 2;
+            $connection["customer_information"] = $customer_data;
+            $connection['isregistered'] = true;
+            return $this->handleNewUser($connection);
         }
         else
         {
+            $connection['isregistered'] = false;
             return $this->handleNewUser($connection);
         }
 
-
-
-
-//        if(Customer::where('phone', $phone)->exists()){
-//            // Function to handle already registered users
-//            $name = Customer::where('phone', $phone)->pluck('name');
-//            $this->handleReturnUser($text, $phone, $name[0]);
-//        }else {
-//             // Function to handle new users
-//             $this->handleNewUser($text, $phone);
-//        }
     }
 
 
@@ -186,12 +176,13 @@ class UssdController extends Controller
 
                     if (count($session_data) == 1) {
                         $connection['message_type'] = true;
-                        return $cheaps->handleUSSDresponse($connection, $this->foodMenu(""));
+                        $name = ($connection['isregistered']) ? $connection["customer_information"]["customer_first_name"] : " ";
+                        return $cheaps->handleUSSDresponse($connection, $this->foodMenu($name));
                     }
 
                     if (count($session_data) > 1 && $session_data[1] == 1) {
                         $connection['category_id'] = 1;
-                        $connection['isregistered'] = false;
+//                        $connection['isregistered'] = false;
                         return $this->customer_order($session_id, $session_data,
                             $cheaps_new_customer_response["OPTION_TWO"], $connection, 'worker menu');
 
@@ -200,7 +191,7 @@ class UssdController extends Controller
                     {
                         // Boss menu
                         $connection['category_id'] = 2;
-                        $connection['isregistered'] = false;
+//                        $connection['isregistered'] = false;
                         return $this->customer_order($session_id, $session_data,
                             $cheaps_new_customer_response["OPTION_THREE"],$connection, 'bossu menu');
 //                        $connection['message_type'] = true;
@@ -356,20 +347,116 @@ class UssdController extends Controller
 
         //check for other input which is not a digit.
 
-        if ($connection['isregistered']) {
+        if (count($session_data) == 5 && $connection['isregistered']) {
             //handle registered person's order
+            $message = "1. For Self\n2. For Others";
+            return $cheaps->handleUSSDresponse($connection, $message);
         }
+
+
+
+        if (count($session_data) == 6 && $connection['isregistered']) {
+            //handle registered person's order
+
+            if ($session_data[4] == 1) {
+                $order_data = Redis::hgetall($session_id);
+                $message = $order_data["customer_information"]["customer_first_name"].
+                    " " . $order_data["customer_information"]["customer_lasst_name"];
+                $message .=  " (".'0'.substr($order_data["customer_information"]['phone_number'], 3) .")\n";
+                $message .= $order_data["food_name"]." (".$order_data["quantity"].")\n";
+                $message .= "1. Confirm\n2. Cancel";
+                $connection['message_type'] = true;
+                return $cheaps->handleUSSDresponse($connection, $message);
+
+            } else if ($session_data[4] == 2) {
+                $message = "Enter full name of contact person:";
+                $connection['message_type'] = true;
+                return $cheaps->handleUSSDresponse($connection, $message);
+            }
+        }
+
+
+
+
+
+        if (count($session_data) == 7 && $connection['isregistered']) {
+
+            if ($session_data[6] == 1) {
+                // make call to mobile money payment
+                //wait for response and then send this reply back to user
+                $order = Redis::hgetall($session_id);
+                dispatch(new OrderJob($order, $session_id, $this->generateUuid()))->delay(2); // dispatch order for
+                //existing customer
+                $message = "Order processed\nYour order is on the way.\nOur delivery person will call you on arrival";
+                $connection['message_type'] = false;
+                return $cheaps->handleUSSDresponse($connection, $message);
+            }
+            else if ($session_data[6] == 2) {
+                Redis::del('select:'.$session_id);
+                Redis::del($session_id);
+                $message = "Order Cancelled.\nOrder could not be processed.\nCome Again soon. :)";
+                $connection['message_type'] = false;
+                return $cheaps->handleUSSDresponse($connection, $message);
+            }
+            else
+            {
+                $name_parts = explode(" ", $session_data[6]);
+                if (count($name_parts) == 1) {
+                    $name_parts = implode(" ", [$cheaps->format_user_input($name_parts[0]),
+                        $cheaps->format_user_input($name_parts[0])]);
+                } else if (count($name_parts) > 1) {
+                    $name_parts = implode(" ", [$cheaps->format_user_input($name_parts[0]),
+                        $cheaps->format_user_input($name_parts[1])]);
+                }
+                Redis::hset($session_id, 'receiver_name', $name_parts);
+                $connection['message_type'] = true;
+                return $cheaps->handleUSSDresponse($connection, $this->officeList("")["data"]);
+            }
+        }
+
+        if (count($session_data) == 8 && $connection['isregistered']) {
+            Redis::hset($session_id, "delivery_location", $this->officeList("")
+            ["location"][$session_data[7] - 1]);
+            //check if invalid selection is made.
+            $order_data = Redis::hgetall($session_id);
+            $message = $order_data["receiver_name"]. "(".'0'.substr($connection['phone_number'], 3) .")\n";
+            $message .= $order_data["food_name"]."(".$order_data["quantity"].")\n";
+            $message .= "1. Confirm\n2. Cancel";
+            $connection['message_type'] = true;
+            return $cheaps->handleUSSDresponse($connection, $message);
+        }
+
+        if (count($session_data) == 9 && $connection['isregistered']) {
+            // make call to mobile money payment
+            //wait for response and then send this reply back to user
+            $order = Redis::hgetall($session_id);
+//            dispatch(new OrderJob($order, $session_id, $this->generateUuid()))->delay(2); // dispatch order for
+            //existing customer
+            $message = "Order processed\nYour order is on the way.\nOur delivery person will call you on arrival";
+            $connection['message_type'] = false;
+            return $cheaps->handleUSSDresponse($connection, $message);
+        }
+
+
+
+
 
         if (count($session_data) == 5 && !$connection['isregistered']) {
             $name_parts = explode(" ", $session_data[4]);
-            $name_parts = implode(" ", [$cheaps->format_user_input($name_parts[0]),
-                $cheaps->format_user_input($name_parts[1])]);
+            if (count($name_parts) == 1) {
+                $name_parts = implode(" ", [$cheaps->format_user_input($name_parts[0]),
+                    $cheaps->format_user_input($name_parts[0])]);
+            } else if (count($name_parts) > 1) {
+                $name_parts = implode(" ", [$cheaps->format_user_input($name_parts[0]),
+                    $cheaps->format_user_input($name_parts[1])]);
+            }
             Redis::hset($session_id, 'receiver_name', $name_parts);
             $connection['message_type'] = true;
             return $cheaps->handleUSSDresponse($connection, $this->officeList("")["data"]);
         }
 
         if (count($session_data) == 6 && !$connection['isregistered']) {
+           //confirm
             Redis::hset($session_id, "delivery_location", $this->officeList("")
             ["location"][$session_data[5] - 1]);
             //check if invalid selection is made.
@@ -399,7 +486,6 @@ class UssdController extends Controller
             return $cheaps->handleUSSDresponse($connection, $message);
         }
     }
-
 
 
 
@@ -605,16 +691,16 @@ class UssdController extends Controller
     //   }
 
 
-    private function handleUSSDresponse ($USER_ID, $customer_phone_number, $cheaps_message, $message_type)
-    {
-//        Log::info("response handler called");
-//        header('Content-type: application/json');
-        $res = [
-            'USERID' => $USER_ID,
-            'MSISDN' => $customer_phone_number,
-            'MSG' => $cheaps_message,
-            'MSGTYPE' => $message_type
-        ];
-        return json_encode($res);
-    }
+//    private function handleUSSDresponse ($USER_ID, $customer_phone_number, $cheaps_message, $message_type)
+//    {
+////        Log::info("response handler called");
+////        header('Content-type: application/json');
+//        $res = [
+//            'USERID' => $USER_ID,
+//            'MSISDN' => $customer_phone_number,
+//            'MSG' => $cheaps_message,
+//            'MSGTYPE' => $message_type
+//        ];
+//        return json_encode($res);
+//    }
 }

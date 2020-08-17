@@ -26,7 +26,7 @@ trait UssdMenuTrait{
 //        $this->ussd_proceed($office);
     }
     public function foodMenu($name){
-        $food = "What are feeling for today ". ucwords($name). ",\n";
+        $food = "What are you feeling for today ". ucwords($name). ",\n";
         $food .= "1. Worker Meal (GHS 10.00)\n";
         $food .= "2. Bossu Meal (GHS 20.00)\n";
 //        $this->ussd_proceed($food);
