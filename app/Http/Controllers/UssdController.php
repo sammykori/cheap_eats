@@ -34,13 +34,13 @@ class UssdController extends Controller
         $customer_interaction = $request->USERDATA;
         $message_type = $request->MSGTYPE;
         $user_id = $request->USERID;
-        $connection = [
-            'user_id' => $user_id,
-            'phone_number' => $phone_number,
-            'customer_interaction' => $customer_interaction,
-            'message_type' => $message_type,
-            'isregistered' => false
-        ];
+//        $connection = [
+//            'user_id' => $user_id,
+//            'phone_number' => $phone_number,
+//            'customer_interaction' => $customer_interaction,
+//            'message_type' => $message_type,
+//            'isregistered' => false
+//        ];
 
 //        Log::info(json_encode($request->all()) . " request " . $request->session()->token() . " \n" .
 //            json_encode($request->session()->all()));
