@@ -71,6 +71,7 @@ class UssdController extends Controller
             return $this->handleNewUser($connection);
         }
 
+        return true;
     }
 
 
