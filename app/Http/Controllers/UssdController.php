@@ -364,6 +364,7 @@ class UssdController extends Controller
 
         if (count($session_data) == 4 && $connection['isregistered']) {
             //handle registered person's order
+            $connection['message_type'] = true;
             $message = "1. For Self\n2. For Others";
             return $cheaps->handleUSSDresponse($connection, $message);
         }
