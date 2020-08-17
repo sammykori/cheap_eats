@@ -43,6 +43,8 @@ class UssdController extends Controller
             'isregistered' => false
         ];
 
+        Log::info(json_encode($connection). " connection data");
+
         $customer_data = [];
         $session_id = base64_encode($phone_number);
         if (strcmp($customer_interaction, "User timeout") == 0)
