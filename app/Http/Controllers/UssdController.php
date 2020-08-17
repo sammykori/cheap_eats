@@ -182,7 +182,7 @@ class UssdController extends Controller
                         $connection['category_id'] = 1;
                         $connection['isregistered'] = false;
                         return $this->customer_order($session_id, $session_data,
-                            $cheaps_new_customer_response["OPTION_TWO"], $connection, 'worker menu');
+                            $cheaps_new_customer_response["OPTION_TWO"], $connection, 'worker menu', $cheaps);
                     }
                     else if (count($session_data) > 1 && $session_data[1] == 2)
                     {
@@ -190,7 +190,8 @@ class UssdController extends Controller
                         $connection['category_id'] = 2;
                         $connection['isregistered'] = false;
                         return $this->customer_order($session_id, $session_data,
-                            $cheaps_new_customer_response["OPTION_THREE"],$connection, 'bossu menu');
+                            $cheaps_new_customer_response["OPTION_THREE"],$connection,
+                            'bossu menu', $cheaps);
                     }
                     break;
                 case 3:
@@ -291,9 +292,9 @@ class UssdController extends Controller
                                       $session_data,
                                       $cheaps_new_customer_response,
                                       $connection,
-                                      $menu_type)
+                                      $menu_type, $cheaps)
     {
-        $cheaps = new CheapsHandler;
+//        $cheaps = new CheapsHandler;
         // menu CONTROLLER
         Redis::hset($session_id, 'category_id', $connection['category_id']);
         if (count($session_data) == 2) {
