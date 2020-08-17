@@ -388,6 +388,8 @@ class UssdController extends Controller
             $connection['message_type'] = false;
             return $cheaps->handleUSSDresponse($connection, $message);
         }
+
+        return true;
     }
 
 
