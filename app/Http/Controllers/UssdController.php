@@ -121,6 +121,7 @@ class UssdController extends Controller
                 case 1:
                     if (count($session_data) == 1)
                     {
+                        $connection['message_type'] = true;
                         return $cheaps->handleUSSDresponse($connection, $cheaps_new_customer_response["OPTION_ONE"]);
                     }
 
