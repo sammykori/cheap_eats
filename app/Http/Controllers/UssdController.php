@@ -68,7 +68,8 @@ class UssdController extends Controller
         }
         else
         {
-            return  $cheaps->handleUSSDresponse($connection, "Hello World");
+//            return  $cheaps->handleUSSDresponse($connection, "Hello World");
+            return $this->handleUSSDresponse($user_id, $phone_number, 'try', $message_type);
 //            return $this->handleNewUser($connection);
         }
 
