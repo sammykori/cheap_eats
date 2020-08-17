@@ -15,7 +15,7 @@ class CreateOrderForNonCustomersTable extends Migration
     {
         Schema::create('order_for_non_customers', function (Blueprint $table) {
             $table->id('order_for_non_customer_id');
-            $table->unsignedBigInteger('orders_order_id');
+            $table->unsignedBigInteger('orders_order_id')->nullable();
             $table->string('receiver_name');
             $table->string('receiver_location');
             $table->enum('delete_status', ['DELETED', 'NOT DELETED'])->default('NOT DELETED');

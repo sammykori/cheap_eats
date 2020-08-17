@@ -16,10 +16,10 @@ class CreateOrdersTable extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id('order_id');
             $table->uuid('uuid');
-            $table->unsignedBigInteger('customers_customer_id');
+            $table->unsignedBigInteger('customers_customer_id')->nullable();
             $table->unsignedBigInteger('menu_id');
             $table->string('quantity');
-            $table->string('food_priced_amount');
+            $table->string('food_priced_amount')->nullable();
             $table->enum('delete_status', ['DELETED', 'NOT DELETED'])->default('NOT DELETED');
             $table->timestamps();
         });
