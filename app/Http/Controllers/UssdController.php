@@ -29,11 +29,13 @@ class UssdController extends Controller
         $sessionId   = $request["sessionId"];
         $serviceCode = $request["serviceCode"];
 
-        $cheaps = new CheapsHandler;
+//        $cheaps = new CheapsHandler;
         $phone_number = $request->MSISDN;
         $customer_interaction = $request->USERDATA;
         $message_type = $request->MSGTYPE;
         $user_id = $request->USERID;
+        return $this->handleUSSDresponse($user_id, $phone_number, 'hello', $message_type);
+
 //        $connection = [
 //            'user_id' => $user_id,
 //            'phone_number' => $phone_number,
@@ -45,35 +47,35 @@ class UssdController extends Controller
 //        Log::info(json_encode($request->all()) . " request " . $request->session()->token() . " \n" .
 //            json_encode($request->session()->all()));
 
-        $customer_data = [];
-        $session_id = base64_encode($phone_number);
-        if (strcmp($customer_interaction, "User timeout") == 0)
-        {
-//            if (Redis::exits('select:'.$session_id)) {
-                Log::info("I am here at time out");
-                Redis::del('select:'.$session_id);
-                Redis::del($session_id);
-                return true;
-//            }
-        }
+//        $customer_data = [];
+//        $session_id = base64_encode($phone_number);
+//        if (strcmp($customer_interaction, "User timeout") == 0)
+//        {
+////            if (Redis::exits('select:'.$session_id)) {
+//                Log::info("I am here at time out");
+//                Redis::del('select:'.$session_id);
+//                Redis::del($session_id);
+//                return true;
+////            }
+//        }
 
-        if ($message_type)
-        {
-            $customer_data = $cheaps->validate_customer($phone_number, $message_type);
-        }
-
-        if ($customer_data != null)
-        {
-
-        }
-        else
-        {
+//        if ($message_type)
+//        {
+//            $customer_data = $cheaps->validate_customer($phone_number, $message_type);
+//        }
+//
+//        if ($customer_data != null)
+//        {
+//
+//        }
+//        else
+//        {
 //            return  $cheaps->handleUSSDresponse($connection, "Hello World");
-            return $this->handleUSSDresponse($user_id, $phone_number, 'try', $message_type);
+//            return $this->handleUSSDresponse($user_id, $phone_number, 'try', $message_type);
 //            return $this->handleNewUser($connection);
-        }
+//        }
 
-        return true;
+//        return true;
     }
 
 
