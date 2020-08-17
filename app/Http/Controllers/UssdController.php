@@ -125,6 +125,8 @@ class UssdController extends Controller
                     if (count($session_data) == 2 && empty($session_data[1]))
                     {
                         $connection['message_type'] = false;
+                        Redis::del('select:'.$session_id);
+                        Redis::del($session_id);
                         $error_message = "CHEAP EATS\nSorry invalid name or no name entered";
                         $error_message .= "\nTry Again! :)";
                         return $cheaps->handleUSSDresponse($connection, $error_message);
@@ -176,6 +178,7 @@ class UssdController extends Controller
                             ]);
                         $success_message = "Registered Successfully!\nWelcome to Cheaps dial Cheap Code\n";
                         $success_message .= "again for your personalized menu";
+                        Redis::del('select:'.$session_id);
                         Redis::del($session_id);
                         $connection['message_type'] = false;
                         return $cheaps->handleUSSDresponse($connection, $success_message);
@@ -192,7 +195,6 @@ class UssdController extends Controller
 
                     if (count($session_data) > 1 && $session_data[1] == 1) {
                         $connection['category_id'] = 1;
-//                        $connection['isregistered'] = false;
                         return $this->customer_order($session_id, $session_data,
                             $cheaps_new_customer_response["OPTION_TWO"], $connection, 'worker menu');
 
@@ -201,11 +203,8 @@ class UssdController extends Controller
                     {
                         // Boss menu
                         $connection['category_id'] = 2;
-//                        $connection['isregistered'] = false;
                         return $this->customer_order($session_id, $session_data,
                             $cheaps_new_customer_response["OPTION_THREE"],$connection, 'bossu menu');
-//                        $connection['message_type'] = true;
-//                        return $cheaps->handleUSSDresponse($connection, $this->bossuMenu()["data"]);
                     }
                     break;
                 case 3:
