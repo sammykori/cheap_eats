@@ -353,6 +353,7 @@ class UssdController extends Controller
         Log::info("Size " . $size);
         if ($size == 5) {
             CheapsHandler::process_customer_name($session_data[$cursor], $session_id);
+            $connection['message_type'] = true;
             return $cheaps->handleUSSDresponse($connection, $this->officeList("")["data"]);
         }
 
