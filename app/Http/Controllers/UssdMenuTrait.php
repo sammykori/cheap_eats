@@ -36,7 +36,7 @@ trait UssdMenuTrait{
     public function allMenu($menu_type){
         $menus = Menu::where([['food_type', $menu_type], ['menu_status', 'available']])->pluck('food_name',
             'menu_id');
-        $meal_title = explode("" , $menu_type);
+        $meal_title = explode(" " ,$menu_type);
         $bf =  ucfirst($meal_title[0]) . " ". ucfirst($meal_title[1]). " meal \n";
         $i = 0;
         $keys = [];
