@@ -41,9 +41,10 @@ class OrderForRegisterdCustomers implements ShouldQueue
     public function handle()
     {
         $order_details = $this->order;
+        $customer_parts = json_decode($order_details['customer_profile'], 1);
         $order = Order::create([
             'uuid' => $this->uuid,
-            'customers_customer_id' => $order_details['customer_id'],
+            'customers_customer_id' => $customer_parts["customer_id"],
             'menu_id' => $order_details['category_id'],
             'quantity' => $order_details['quantity'],
             'food_priced_amount' => ($order_details['category_id'] == 1) ? 10 : 20,
@@ -53,7 +54,8 @@ class OrderForRegisterdCustomers implements ShouldQueue
             'orders_order_id' => $order->order_id,
             'delivery_token' => Str::random(10),
             'delivery_type' => $order_details['order_type'],
-            'delivery_location' => $order_details['delivery_location'], // replace with delivery id for
+            'delivery_location' => $customer_parts["office_location"] ?? "-", // replace
+            // with delivery id for
             //better normalization
         ]);
 

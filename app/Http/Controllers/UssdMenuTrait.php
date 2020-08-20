@@ -39,7 +39,7 @@ trait UssdMenuTrait{
         $bf = "$menu_type meal \n";
         $i = 0;
         $keys = [];
-        Log::info(json_encode($menus) . " for menu");
+//        Log::info(json_encode($menus) . " for menu");
             foreach ($menus as $key => $menu) {
                 $i++;
                 $bf .= "$i. $menu \n";
