@@ -27,9 +27,6 @@ class UssdController extends Controller
 
     public function ussdRequestHandler(Request $request)
     {
-        $sessionId   = $request["sessionId"];
-        $serviceCode = $request["serviceCode"];
-
         $cheaps = new CheapsHandler;
         $phone_number = $request->MSISDN;
         $customer_interaction = $request->USERDATA;
@@ -41,7 +38,6 @@ class UssdController extends Controller
             'message_type' => $message_type,
             'isregistered' => 0
         ];
-
         Log::info("Begin's here --> ");
         $customer_data = [];
         $session_id = base64_encode($phone_number);
@@ -57,16 +53,13 @@ class UssdController extends Controller
         }
 //        __ initialize__ session
         $customer_data = $cheaps->validate_customer($phone_number, $message_type);
-        if (Redis::hexists($session_id, "customer_profile") && $connection['message_type'])
-        {
-
+        if (Redis::hexists($session_id, "customer_profile") && $connection['message_type']) {
             Redis::hset($session_id, "customer_interaction", 2);
             Redis::hset($session_id, "isregistered", 1);
             $connection['isregistered'] = 1;
         } else if (!Redis::hexists($session_id, "customer_profile")) {
             Redis::hset($session_id, "isregistered", 0);
         }
-
         return $this->handleNewUser($connection);
     }
 

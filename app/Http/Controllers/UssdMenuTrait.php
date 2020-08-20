@@ -36,28 +36,15 @@ trait UssdMenuTrait{
     public function allMenu($menu_type){
         $menus = Menu::where([['food_type', $menu_type], ['menu_status', 'available']])->pluck('food_name',
             'menu_id');
-        $bf = "$menu_type meal \n";
+        $meal_title = explode("" , $menu_type);
+        $bf =  ucfirst($meal_title[0]) . " ". ucfirst($meal_title[1]). " meal \n";
         $i = 0;
         $keys = [];
-//        Log::info(json_encode($menus) . " for menu");
             foreach ($menus as $key => $menu) {
                 $i++;
                 $bf .= "$i. $menu \n";
                 $keys[$i] = $key;
             }
         return ["data" => $bf, "menu" => $menus, "keys" => $keys];
-    }
-    public function bossuMenu(){
-        $menu = Menu::where([['food_type', 'bossu menu'], ['menu_status', 'available']])->pluck('food_name', 'menu_id');
-        $lunch = "Bossu meal | All meals cost GHS 20.00\n ";
-        $i = 0;
-        if(count($menu) > 0){
-            foreach ($menu as $menu) {
-                $i++;
-                $lunch .= "$i. $menu \n";
-            }
-        }
-        return ["data" => $lunch, "menu" => $menu];
-//        $this->ussd_proceed($lunch);
     }
 }
