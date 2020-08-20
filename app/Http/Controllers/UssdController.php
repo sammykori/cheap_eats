@@ -355,8 +355,6 @@ class UssdController extends Controller
             CheapsHandler::process_customer_name($session_data[$cursor], $session_id);
             $connection['message_type'] = true;
             return $cheaps->handleUSSDresponse($connection, $this->officeList("")["data"]);
-        } else {
-            $cheaps->clear_customer_session($session_id);
         }
 
 
@@ -367,8 +365,6 @@ class UssdController extends Controller
             ["location"][$session_data[$cursor] - 1]);
             //check if invalid selection is made.
             return $cheaps->complete_customer_order($session_id, $connection);
-        } else {
-            $cheaps->clear_customer_session($session_id);
         }
 
         if ($size == 7 && $session_data[$cursor] == CheapsHandler::$CONFIRM_ORDER) {
@@ -378,16 +374,12 @@ class UssdController extends Controller
             dispatch(new OrderJob($order, $session_id, $this->generateUuid()))->delay(2);
             $message = "Order processed\nYour order is on the way.\nOur delivery person will call you on arrival";
             return $cheaps->customer_order_processing_status($message, $connection, false);
-        } else {
-            $cheaps->clear_customer_session($session_id);
         }
 
         if ($size == 7 && $session_data[$cursor] == CheapsHandler::$CANCEL_ORDER) {
             $message = "Order Cancelled.\nOrder could not be processed.\nCome Again soon. :)";
             $cheaps->clear_customer_session($session_id);
             return $cheaps->customer_order_processing_status($message, $connection, false);
-        } else {
-            $cheaps->clear_customer_session($session_id);
         }
     }
 
