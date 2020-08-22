@@ -38,6 +38,8 @@ class UssdController extends Controller
             'message_type' => $message_type,
             'isregistered' => 0
         ];
+
+        Log::info(json_encode($request->all()));
         Log::info("Begin's here --> ");
         $customer_data = [];
         $session_id = base64_encode($phone_number);
@@ -47,8 +49,7 @@ class UssdController extends Controller
         if (strcmp($customer_interaction, "User timeout") == 0)
         {
                 Log::info("I am here at time out");
-                Redis::del('select:'.$session_id);
-                Redis::del($session_id);
+                $cheaps->clear_customer_session($session_id);
                 return true;
         }
 //        __ initialize__ session
