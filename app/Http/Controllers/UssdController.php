@@ -236,6 +236,7 @@ class UssdController extends Controller
                 return CheapsHandler::validate_user_input(intval($session_data[2]), ['session_id' => $session_id, 'connection' =>
                     $connection, 'options' => [CheapsHandler::$CONFIRM_ORDER, CheapsHandler::$CANCEL_ORDER]], 'integer');
             } else if (!intval($session_data[2])) {
+                Log::info("else if of unregistered");
                 return $cheaps->custom_validate(['session_id' =>
                     $session_id, 'connection' => $connection, 'options' => []]);
             }
