@@ -91,8 +91,7 @@ class UssdController extends Controller
 
         if (count($session_data) > 0)
         {
-            CheapsHandler::validate_user_input($session_data[0], ['session_id' => $session_id, 'connection' =>
-                $connection, 'options' => [1,2,3]], 'int');
+
             switch ($session_data[0])
             {
                 case 1:
@@ -192,6 +191,10 @@ class UssdController extends Controller
                     $connection['message_type'] = false;
                     return $cheaps->handleUSSDresponse($connection, $cheaps_new_customer_response["OPTION_THREE"]);
                     break;
+                default:
+                    return CheapsHandler::validate_user_input(intval($session_data[0]), ['session_id' => $session_id, 'connection' =>
+                        $connection, 'options' => [1,2,3]], 'integer');
+                    break;
             }
         }
         $cheaps->clear_customer_session($session_id);
@@ -209,19 +212,18 @@ class UssdController extends Controller
         if (count($session_data) == 2) return $cheaps->customer_order_processing_status($this->allMenu($menu_type)["data"], $connection, true);
 
 
-        if (!empty($session_data[2]) && !Arr::exists($this->allMenu($menu_type)["menu"], $this->allMenu($menu_type)["keys"][$session_data[2]])) {
-            if (!empty($session_data[3]) && $session_data[3] == 1) {
-                Redis::rpop($session_id);
-                $connection['message_type'] = true;
-                return $this->handleNewUser($connection);
-            } else if (!empty($session_data[3]) && $session_data[3] == 2) {
-                $connection['message_type'] = true;
-                return $cheaps->handleUSSDresponse($connection, $cheaps_new_customer_response);
-            }
-            $message = "Wrong Input\n1. Try Again\n2.Exit";
-            return $cheaps->customer_order_processing_status($message, $connection, true);
-        }
-
+//        if (!empty($session_data[2]) && !Arr::exists($this->allMenu($menu_type)["menu"], $this->allMenu($menu_type)["keys"][$session_data[2]])) {
+//            if (!empty($session_data[3]) && $session_data[3] == 1) {
+//                Redis::rpop($session_id);
+//                $connection['message_type'] = true;
+//                return $this->handleNewUser($connection);
+//            } else if (!empty($session_data[3]) && $session_data[3] == 2) {
+//                $connection['message_type'] = true;
+//                return $cheaps->handleUSSDresponse($connection, $cheaps_new_customer_response);
+//            }
+//            $message = "Wrong Input\n1. Try Again\n2.Exit";
+//            return $cheaps->customer_order_processing_status($message, $connection, true);
+//        }
 
         if ($size == 3) {
             CheapsHandler::validate_user_input($session_data[2], ['session_id' => $session_id, 'connection' =>

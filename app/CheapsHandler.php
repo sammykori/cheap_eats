@@ -102,11 +102,15 @@ class CheapsHandler
 
 
     public static  function validate_user_input($user_input, $cheap_input, $expected_input_type) {
-
+        Log::info("validate ". gettype($user_input));
          if (strcmp(gettype($user_input), $expected_input_type) != 0) {
-             return (new self())->custom_validate($cheap_input);
+             Log::info("mismatch");
+              return (new self())->custom_validate($cheap_input);
          } else {
-             if (strcmp(gettype($user_input), 'int') == 0 && !Arr::exists(array_values($cheap_input['options']), $user_input)) {
+             Log::info("else of mismatch");
+             if (strcmp(gettype($user_input), 'integer') == 0 && !Arr::exists(array_values($cheap_input['options']),
+                     $user_input)) {
+                 Log::info("doesn't exist");
                  return (new self())->custom_validate($cheap_input);
              }
          }
