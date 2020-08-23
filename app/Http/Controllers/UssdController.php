@@ -209,24 +209,23 @@ class UssdController extends Controller
         if (count($session_data) == 2) return $cheaps->customer_order_processing_status($this->allMenu($menu_type)["data"], $connection, true);
 
 
-//        if (!empty($session_data[2]) && !Arr::exists($this->allMenu($menu_type)["menu"], $this->allMenu($menu_type)["keys"][$session_data[2]])) {
-//            if (!empty($session_data[3]) && $session_data[3] == 1) {
-//                Redis::rpop($session_id);
-//                $connection['message_type'] = true;
-//                return $this->handleNewUser($connection);
-//            } else if (!empty($session_data[3]) && $session_data[3] == 2) {
-//                $connection['message_type'] = true;
-//                return $cheaps->handleUSSDresponse($connection, $cheaps_new_customer_response);
-//            }
-//            $message = "Wrong Input\n1. Try Again\n2.Exit";
-//            return $cheaps->customer_order_processing_status($message, $connection, true);
-//        }
+        if (!empty($session_data[2]) && !Arr::exists($this->allMenu($menu_type)["menu"], $this->allMenu($menu_type)["keys"][$session_data[2]])) {
+            if (!empty($session_data[3]) && $session_data[3] == 1) {
+                Redis::rpop($session_id);
+                $connection['message_type'] = true;
+                return $this->handleNewUser($connection);
+            } else if (!empty($session_data[3]) && $session_data[3] == 2) {
+                $connection['message_type'] = true;
+                return $cheaps->handleUSSDresponse($connection, $cheaps_new_customer_response);
+            }
+            $message = "Wrong Input\n1. Try Again\n2.Exit";
+            return $cheaps->customer_order_processing_status($message, $connection, true);
+        }
 
 
         if ($size == 3) {
             CheapsHandler::validate_user_input($session_data[2], ['session_id' => $session_id, 'connection' =>
                 $connection, 'options' => [CheapsHandler::$CONFIRM_ORDER, CheapsHandler::$CANCEL_ORDER]], 'int');
-
             Redis::hset($session_id, 'food_id', $this->allMenu($menu_type)["keys"][$session_data[2]]);
             Redis::hset($session_id, 'food_name',  $this->allMenu($menu_type)["menu"]
             [$this->allMenu($menu_type)["keys"][$session_data[2]]]);
