@@ -226,8 +226,8 @@ class UssdController extends Controller
 //        }
 
         if ($size == 3) {
-            CheapsHandler::validate_user_input($session_data[2], ['session_id' => $session_id, 'connection' =>
-                $connection, 'options' => [CheapsHandler::$CONFIRM_ORDER, CheapsHandler::$CANCEL_ORDER]], 'int');
+            CheapsHandler::validate_user_input(intval($session_data[2]), ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [CheapsHandler::$CONFIRM_ORDER, CheapsHandler::$CANCEL_ORDER]], 'integer');
             Redis::hset($session_id, 'food_id', $this->allMenu($menu_type)["keys"][$session_data[2]]);
             Redis::hset($session_id, 'food_name',  $this->allMenu($menu_type)["menu"]
             [$this->allMenu($menu_type)["keys"][$session_data[2]]]);
@@ -299,8 +299,8 @@ class UssdController extends Controller
 
         if ($size == 5) {
             //handle registered person's order
-            CheapsHandler::validate_user_input($session_data[$cursor], ['session_id' => $session_id, 'connection' =>
-                $connection, 'options' => [1,2]], 'int');
+            CheapsHandler::validate_user_input(intval($session_data[$cursor]), ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [1,2]], 'integer');
             if ($session_data[$cursor] == CheapsHandler::$CONFIRM_ORDER) {
                 Redis::hset($session_id, "order_type", "SELF");
                 $connection['disp_name'] = json_decode(Redis::hget($session_id, "customer_profile"), 1)["customer_first_name"];
@@ -313,8 +313,8 @@ class UssdController extends Controller
 
 
         if ($size == 6) {
-            CheapsHandler::validate_user_input($session_data[$cursor], ['session_id' => $session_id, 'connection' =>
-                $connection, 'options' => [1,2]], 'int');
+            CheapsHandler::validate_user_input(intval($session_data[$cursor]), ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [1,2]], 'integer');
             if ($session_data[$cursor] == CheapsHandler::$CONFIRM_ORDER) {
                 // make call to mobile money payment
                 //wait for response and then send this reply back to user
@@ -340,8 +340,8 @@ class UssdController extends Controller
         }
 
         if ($size == 7) {
-            CheapsHandler::validate_user_input($session_data[$cursor], ['session_id' => $session_id, 'connection' =>
-                $connection, 'options' => [1,2,3,4]], 'int');
+            CheapsHandler::validate_user_input(intval($session_data[$cursor]), ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [1,2,3,4]], 'integer');
             Redis::hset($session_id, "delivery_location", $this->officeList("")
             ["location"][$session_data[$cursor] - 1]);
             //check if invalid selection is made.
@@ -351,8 +351,8 @@ class UssdController extends Controller
         if ($size == 8) {
             // make call to mobile money payment
             //wait for response and then send this reply back to user
-            CheapsHandler::validate_user_input($session_data[$cursor], ['session_id' => $session_id, 'connection' =>
-                $connection, 'options' => [CheapsHandler::$CONFIRM_ORDER,CheapsHandler::$CANCEL_ORDER]], 'int');
+            CheapsHandler::validate_user_input(intval($session_data[$cursor]), ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [CheapsHandler::$CONFIRM_ORDER,CheapsHandler::$CANCEL_ORDER]], 'integer');
             $order = Redis::hgetall($session_id);
             if ($session_data[$cursor] == CheapsHandler::$CONFIRM_ORDER) {
                 // make call to mobile money payment
@@ -391,8 +391,8 @@ class UssdController extends Controller
 
         if ($size == 6) {
             //confirm
-            CheapsHandler::validate_user_input($session_data[$cursor], ['session_id' => $session_id, 'connection' =>
-                $connection, 'options' => [1,2,3,4]], 'int');
+            CheapsHandler::validate_user_input(intval($session_data[$cursor]), ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [1,2,3,4]], 'integer');
             Redis::hset($session_id, "delivery_location", $this->officeList("")
             ["location"][$session_data[$cursor] - 1]);
             //check if invalid selection is made.
@@ -400,8 +400,8 @@ class UssdController extends Controller
         }
 
         if ($size == 7) {
-            CheapsHandler::validate_user_input($session_data[$cursor], ['session_id' => $session_id, 'connection' =>
-                $connection, 'options' => [CheapsHandler::$CONFIRM_ORDER,CheapsHandler::$CANCEL_ORDER]], 'int');
+            CheapsHandler::validate_user_input(intval($session_data[$cursor]), ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [CheapsHandler::$CONFIRM_ORDER,CheapsHandler::$CANCEL_ORDER]], 'integer');
 
             if ($session_data[$cursor] == CheapsHandler::$CONFIRM_ORDER) {
                 // make call to mobile money payment
