@@ -235,11 +235,12 @@ class UssdController extends Controller
             if (intval($session_data[2])) {
                 return CheapsHandler::validate_user_input(intval($session_data[2]), ['session_id' => $session_id, 'connection' =>
                     $connection, 'options' => [CheapsHandler::$CONFIRM_ORDER, CheapsHandler::$CANCEL_ORDER]], 'integer');
-            } else if (!intval($session_data[2])) {
-                Log::info("else if of unregistered");
-                return $cheaps->custom_validate(['session_id' =>
-                    $session_id, 'connection' => $connection, 'options' => []]);
             }
+//            else if (!intval($session_data[2])) {
+//                Log::info("else if of unregistered");
+//                return $cheaps->custom_validate(['session_id' =>
+//                    $session_id, 'connection' => $connection, 'options' => []]);
+//            }
             Redis::hset($session_id, 'food_id', $this->allMenu($menu_type)["keys"][$session_data[2]]);
             Redis::hset($session_id, 'food_name',  $this->allMenu($menu_type)["menu"]
             [$this->allMenu($menu_type)["keys"][$session_data[2]]]);
