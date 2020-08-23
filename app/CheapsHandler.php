@@ -4,6 +4,7 @@
 namespace App;
 
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Session;
@@ -97,5 +98,23 @@ class CheapsHandler
                 CheapsHandler::format_user_input($name_parts[1])]);
         }
         Redis::hset($session_id, 'receiver_name', $name_parts);
+    }
+
+
+    public static  function validate_user_input($user_input, $cheap_input, $expected_input_type) {
+
+         if (strcmp(gettype($user_input), $expected_input_type) != 0) {
+             return (new self())->custom_validate($cheap_input);
+         } else {
+             if (strcmp(gettype($user_input), 'int') == 0 && !Arr::exists(array_values($cheap_input['options']), $user_input)) {
+                 return (new self())->custom_validate($cheap_input);
+             }
+         }
+    }
+
+    public  function custom_validate($cheap_input) {
+        $this->clear_customer_session($cheap_input['session_id']);
+        return $this->customer_order_processing_status("Sorry cheaps detected an invalid input\n Try again :)",
+            $cheap_input['connection'], false);
     }
 }

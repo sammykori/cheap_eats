@@ -85,12 +85,14 @@ class UssdController extends Controller
         if (Redis::exists('select:'.$session_id)) {
             $session_data = Redis::lrange('select:'.$session_id, 0, -1);
             Redis::hset($session_id, 'selection', $session_data);
-            Redis::expire('select:'.$session_id, 1500);
-            Redis::expire($session_id, 1500);
+            Redis::expire('select:'.$session_id, 500);
+            Redis::expire($session_id, 500);
         }
 
         if (count($session_data) > 0)
         {
+            CheapsHandler::validate_user_input($session_data[0], ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [1,2,3]], 'int');
             switch ($session_data[0])
             {
                 case 1:
@@ -109,6 +111,8 @@ class UssdController extends Controller
 
                     if (count($session_data) == 2 && !empty($session_data[1]))
                     {
+                        CheapsHandler::validate_user_input($session_data[1], ['session_id' => $session_id, 'connection' =>
+                            $connection, 'options' => []], 'string');
                         $name_parts = explode(" ", $session_data[1]);
                         $first_name = "";
                         $last_name = "";
@@ -132,13 +136,15 @@ class UssdController extends Controller
 
                     if (count($session_data) > 2)
                     {
-                        if ($session_data[2] > 3) {
-                            $selection_message = "CHEAP EATS\n";
-                            $selection_message .= "Wrong choice made.\n Select again from your next session.";
-                            Redis::rpop($session_id);
-                            $connection['message_type'] = false;
-                            return $cheaps->handleUSSDresponse($connection, $selection_message);
-                        }
+                        CheapsHandler::validate_user_input($session_data[2], ['session_id' => $session_id, 'connection' =>
+                            $connection, 'options' => [1,2,3,4]], 'int');
+//                        if ($session_data[2] > 3) {
+//                            $selection_message = "CHEAP EATS\n";
+//                            $selection_message .= "Wrong choice made.\n Select again from your next session.";
+//                            Redis::rpop($session_id);
+//                            $connection['message_type'] = false;
+//                            return $cheaps->handleUSSDresponse($connection, $selection_message);
+//                        }
 
                         Customer::where('delete_status', 'NOT DELETED')
                             ->where('customer_id', $session_data[2])
@@ -155,8 +161,8 @@ class UssdController extends Controller
 
                     break;
                 case 2:
-
-                    if (count($session_data) == 1) {
+                    $size = count($session_data);
+                    if ( $size == 1) {
                         Log::info(Redis::hget($session_id, 'isregistered'));
                         $connection['message_type'] = true;
                         $name = ($connection['isregistered'] == 1) ?  json_decode( Redis::hget($session_id, "customer_profile") , 1)
@@ -164,16 +170,22 @@ class UssdController extends Controller
                         return $cheaps->handleUSSDresponse($connection, $this->foodMenu($name));
                     }
 
-                    if (count($session_data) > 1 && $session_data[1] == 1) {
-                        $connection['category_id'] = 1;
-                        return $this->customer_order($session_id, $session_data,
-                            $cheaps_new_customer_response["OPTION_TWO"], $connection, 'worker menu');
-                    } else if (count($session_data) > 1 && $session_data[1] == 2) {
-                        // Boss menu
-                        $connection['category_id'] = 2;
-                        return $this->customer_order($session_id, $session_data,
-                            $cheaps_new_customer_response["OPTION_THREE"],$connection, 'bossu menu');
+                    if ($size > 1) {
+                        CheapsHandler::validate_user_input($session_data[1], ['session_id' => $session_id, 'connection' =>
+                            $connection, 'options' => [CheapsHandler::$CONFIRM_ORDER, CheapsHandler::$CANCEL_ORDER]],
+                            'int');
+                        if ($session_data[1] == CheapsHandler::$CONFIRM_ORDER) {
+                            $connection['category_id'] = 1;
+                            return $this->customer_order($session_id, $session_data,
+                                $cheaps_new_customer_response["OPTION_TWO"], $connection, 'worker menu');
+                        } else if ($session_data[1] == CheapsHandler::$CANCEL_ORDER) {
+                            // Boss menu
+                            $connection['category_id'] = 2;
+                            return $this->customer_order($session_id, $session_data,
+                                $cheaps_new_customer_response["OPTION_THREE"],$connection, 'bossu menu');
+                        }
                     }
+
                     break;
                 case 3:
                     $cheaps->clear_customer_session($session_id);
@@ -197,20 +209,24 @@ class UssdController extends Controller
         if (count($session_data) == 2) return $cheaps->customer_order_processing_status($this->allMenu($menu_type)["data"], $connection, true);
 
 
-        if (!empty($session_data[2]) && !Arr::exists($this->allMenu($menu_type)["menu"], $this->allMenu($menu_type)["keys"][$session_data[2]])) {
-            if (!empty($session_data[3]) && $session_data[3] == 1) {
-                Redis::rpop($session_id);
-                $connection['message_type'] = true;
-                return $this->handleNewUser($connection);
-            } else if (!empty($session_data[3]) && $session_data[3] == 2) {
-                $connection['message_type'] = true;
-                return $cheaps->handleUSSDresponse($connection, $cheaps_new_customer_response);
-            }
-            $message = "Wrong Input\n1. Try Again\n2.Exit";
-            return $cheaps->customer_order_processing_status($message, $connection, true);
-        }
+//        if (!empty($session_data[2]) && !Arr::exists($this->allMenu($menu_type)["menu"], $this->allMenu($menu_type)["keys"][$session_data[2]])) {
+//            if (!empty($session_data[3]) && $session_data[3] == 1) {
+//                Redis::rpop($session_id);
+//                $connection['message_type'] = true;
+//                return $this->handleNewUser($connection);
+//            } else if (!empty($session_data[3]) && $session_data[3] == 2) {
+//                $connection['message_type'] = true;
+//                return $cheaps->handleUSSDresponse($connection, $cheaps_new_customer_response);
+//            }
+//            $message = "Wrong Input\n1. Try Again\n2.Exit";
+//            return $cheaps->customer_order_processing_status($message, $connection, true);
+//        }
+
 
         if ($size == 3) {
+            CheapsHandler::validate_user_input($session_data[2], ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [CheapsHandler::$CONFIRM_ORDER, CheapsHandler::$CANCEL_ORDER]], 'int');
+
             Redis::hset($session_id, 'food_id', $this->allMenu($menu_type)["keys"][$session_data[2]]);
             Redis::hset($session_id, 'food_name',  $this->allMenu($menu_type)["menu"]
             [$this->allMenu($menu_type)["keys"][$session_data[2]]]);
@@ -282,6 +298,8 @@ class UssdController extends Controller
 
         if ($size == 5) {
             //handle registered person's order
+            CheapsHandler::validate_user_input($session_data[$cursor], ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [1,2]], 'int');
             if ($session_data[$cursor] == CheapsHandler::$CONFIRM_ORDER) {
                 Redis::hset($session_id, "order_type", "SELF");
                 $connection['disp_name'] = json_decode(Redis::hget($session_id, "customer_profile"), 1)["customer_first_name"];
@@ -294,6 +312,8 @@ class UssdController extends Controller
 
 
         if ($size == 6) {
+            CheapsHandler::validate_user_input($session_data[$cursor], ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [1,2]], 'int');
             if ($session_data[$cursor] == CheapsHandler::$CONFIRM_ORDER) {
                 // make call to mobile money payment
                 //wait for response and then send this reply back to user
@@ -310,6 +330,8 @@ class UssdController extends Controller
             }
             else
             {
+                CheapsHandler::validate_user_input($session_data[$cursor], ['session_id' => $session_id, 'connection' =>
+                    $connection, 'options' => []], 'string');
                 CheapsHandler::process_customer_name($session_data[$cursor], $session_id);
                 $connection['message_type'] = true;
                 return $cheaps->handleUSSDresponse($connection, $this->officeList("")["data"]);
@@ -317,6 +339,8 @@ class UssdController extends Controller
         }
 
         if ($size == 7) {
+            CheapsHandler::validate_user_input($session_data[$cursor], ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [1,2,3,4]], 'int');
             Redis::hset($session_id, "delivery_location", $this->officeList("")
             ["location"][$session_data[$cursor] - 1]);
             //check if invalid selection is made.
@@ -326,6 +350,8 @@ class UssdController extends Controller
         if ($size == 8) {
             // make call to mobile money payment
             //wait for response and then send this reply back to user
+            CheapsHandler::validate_user_input($session_data[$cursor], ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [CheapsHandler::$CONFIRM_ORDER,CheapsHandler::$CANCEL_ORDER]], 'int');
             $order = Redis::hgetall($session_id);
             if ($session_data[$cursor] == CheapsHandler::$CONFIRM_ORDER) {
                 // make call to mobile money payment
@@ -353,6 +379,8 @@ class UssdController extends Controller
         $cursor = $size - 1;
         Log::info("Size " . $size);
         if ($size == 5) {
+            CheapsHandler::validate_user_input($session_data[$cursor], ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' =>[]], 'string');
             CheapsHandler::process_customer_name($session_data[$cursor], $session_id);
             $connection['message_type'] = true;
             return $cheaps->handleUSSDresponse($connection, $this->officeList("")["data"]);
@@ -362,25 +390,32 @@ class UssdController extends Controller
 
         if ($size == 6) {
             //confirm
+            CheapsHandler::validate_user_input($session_data[$cursor], ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [1,2,3,4]], 'int');
             Redis::hset($session_id, "delivery_location", $this->officeList("")
             ["location"][$session_data[$cursor] - 1]);
             //check if invalid selection is made.
             return $cheaps->complete_customer_order($session_id, $connection);
         }
 
-        if ($size == 7 && $session_data[$cursor] == CheapsHandler::$CONFIRM_ORDER) {
-            // make call to mobile money payment
-            //wait for response and then send this reply back to user
-            $order = Redis::hgetall($session_id);
-            dispatch(new OrderJob($order, $session_id, $this->generateUuid()))->delay(2);
-            $message = "Order processed\nYour order is on the way.\nOur delivery person will call you on arrival";
-            return $cheaps->customer_order_processing_status($message, $connection, false);
-        }
+        if ($size == 7) {
+            CheapsHandler::validate_user_input($session_data[$cursor], ['session_id' => $session_id, 'connection' =>
+                $connection, 'options' => [CheapsHandler::$CONFIRM_ORDER,CheapsHandler::$CANCEL_ORDER]], 'int');
 
-        if ($size == 7 && $session_data[$cursor] == CheapsHandler::$CANCEL_ORDER) {
-            $message = "Order Cancelled.\nOrder could not be processed.\nCome Again soon. :)";
-            $cheaps->clear_customer_session($session_id);
-            return $cheaps->customer_order_processing_status($message, $connection, false);
+            if ($session_data[$cursor] == CheapsHandler::$CONFIRM_ORDER) {
+                // make call to mobile money payment
+                //wait for response and then send this reply back to user
+                $order = Redis::hgetall($session_id);
+                dispatch(new OrderJob($order, $session_id, $this->generateUuid()))->delay(2);
+                $message = "Order processed\nYour order is on the way.\nOur delivery person will call you on arrival";
+                return $cheaps->customer_order_processing_status($message, $connection, false);
+            }
+
+            if ($session_data[$cursor] == CheapsHandler::$CANCEL_ORDER) {
+                $message = "Order Cancelled.\nOrder could not be processed.\nCome Again soon. :)";
+                $cheaps->clear_customer_session($session_id);
+                return $cheaps->customer_order_processing_status($message, $connection, false);
+            }
         }
     }
 
