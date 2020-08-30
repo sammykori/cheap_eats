@@ -103,18 +103,29 @@ class CheapsHandler
 
     public static  function validate_user_input($user_input, $cheap_input, $expected_input_type) {
         Log::info("validate ". gettype($user_input));
-        $input_val = intval($user_input);
-         if (strcmp(gettype($user_input), $expected_input_type) != 0) {
+        $input_val = (new self())->process_incoming_input($user_input);
+        Log::info(json_encode($input_val). " input values");
+         if (strcmp($input_val['type'], $expected_input_type) != 0) {
              Log::info("mismatch");
               return (new self())->custom_validate($cheap_input);
-         } else {
+         } else if (strcmp($input_val['type'], $expected_input_type) == 0) {
              Log::info("else of mismatch");
-             if (strcmp(gettype($user_input), 'integer') == 0 && !Arr::exists(array_values($cheap_input['options']),
-                     $user_input)) {
+             if (strcmp($input_val['type'], 'integer') == 0 && !Arr::exists(array_values($cheap_input['options']), $input_val['input'])) {
                  Log::info("doesn't exist");
                  return (new self())->custom_validate($cheap_input);
              }
          }
+    }
+
+    public function process_incoming_input ($user_input) {
+        $convert = intval($user_input);
+        if ($convert == 0) {
+            $convert_string = strval($user_input);
+            if (is_string($convert_string)) {
+                return  ["type" => gettype($convert_string), "input" => $convert_string];
+            }
+        }
+        return ["type" => gettype($convert), "input" => $convert];
     }
 
     public  function custom_validate($cheap_input) {
