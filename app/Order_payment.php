@@ -4,12 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order_payment extends Model
 {
+    use SoftDeletes;
+
     protected $primaryKey = "order_payment_id";
-    protected $fillable = ['orders_order_id', 'payment_status', 'payment_type', 'delete_status'];
+    protected $fillable = ['orders_order_id', 'payment_status', 'payment_type'];
 
     public function order () : BelongsTo
     {

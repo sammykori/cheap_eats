@@ -4,11 +4,15 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OrderForNonCustomer extends Model
 {
+    use SoftDeletes;
+
     protected $primaryKey = 'order_for_non_customer_id';
-    protected $fillable = ['receiver_name', 'orders_order_id', 'receiver_location', 'delete_status'];
+    protected $fillable = ['receiver_name', 'orders_order_id',
+        'receiver_location'];
 
     public function order () : BelongsTo
     {

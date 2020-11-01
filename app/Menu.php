@@ -5,14 +5,17 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Menu extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'menus';
 
     protected $primaryKey = 'menu_id';
     protected $fillable = ['food_name', 'food_type', 'food_price', 'short_description',
-        'long_description', 'food_image_path', 'menu_status', 'delete_status'];
+        'long_description', 'food_image_path', 'menu_status'];
     public $timestamps = true;
 
     public function menu (): BelongsTo

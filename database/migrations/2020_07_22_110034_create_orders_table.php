@@ -20,8 +20,8 @@ class CreateOrdersTable extends Migration
             $table->unsignedBigInteger('menu_id');
             $table->string('quantity');
             $table->string('food_priced_amount')->nullable();
-            $table->enum('delete_status', ['DELETED', 'NOT DELETED'])->default('NOT DELETED');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -33,5 +33,8 @@ class CreateOrdersTable extends Migration
     public function down()
     {
         Schema::dropIfExists('orders');
+//        Schema::table('orders', function (Blueprint $table) {
+//            $table->dropSoftDeletes();
+//        });
     }
 }

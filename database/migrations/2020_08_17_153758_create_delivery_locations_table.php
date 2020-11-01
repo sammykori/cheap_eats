@@ -16,8 +16,8 @@ class CreateDeliveryLocationsTable extends Migration
         Schema::create('delivery_locations', function (Blueprint $table) {
             $table->id('delivery_location_id');
             $table->string('location_name');
-            $table->enum('delete_status', ['DELETED', 'NOT DELETED'])->default('NOT DELETED');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -29,5 +29,8 @@ class CreateDeliveryLocationsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('delivery_locations');
+//        Schema::table('delivery_locations', function (Blueprint $table) {
+//            $table->dropSoftDeletes();
+//        });
     }
 }

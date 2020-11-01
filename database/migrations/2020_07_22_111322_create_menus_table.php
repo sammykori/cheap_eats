@@ -22,8 +22,8 @@ class CreateMenusTable extends Migration
             $table->string('long_description')->nullable();
             $table->string('food_image_path')->nullable();
             $table->enum('menu_status', ['AVAILABLE', 'UNAVAILABLE'])->default('AVAILABLE');
-            $table->enum('delete_status', ['DELETED','NOT DELETED'])->default('NOT DELETED');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -35,5 +35,8 @@ class CreateMenusTable extends Migration
     public function down()
     {
         Schema::dropIfExists('menus');
+//        Schema::table('menus', function (Blueprint $table) {
+//            $table->dropSoftDeletes();
+//        });
     }
 }

@@ -1,0 +1,23 @@
+extend type Query {
+    customers: [Customer] @field(resolver: "CustomerQueries@cheaps_customers")
+}
+#
+#
+#extend type Mutation {
+#
+#}
+
+
+type Customer {
+    customer_id: ID
+    customer_first_name: String
+    customer_last_name: String
+    offer_location: String
+    phone_number: String
+    account: CUSTOMER_ACCOUNT_STATUS
+}
+
+enum CUSTOMER_ACCOUNT_STATUS {
+    ACTIVE
+    UNACTIVE
+}

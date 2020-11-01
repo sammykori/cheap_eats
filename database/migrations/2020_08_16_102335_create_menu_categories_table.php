@@ -18,8 +18,8 @@ class CreateMenuCategoriesTable extends Migration
             $table->string('category_name');
             $table->string('category_description');
             $table->enum('category_status', ['AVAILABLE', 'NOT AVAILABLE'])->default('AVAILABLE');
-            $table->enum('delete_status', ['DELETED','NOT DELETED'])->default('NOT DELETED');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -31,5 +31,8 @@ class CreateMenuCategoriesTable extends Migration
     public function down()
     {
         Schema::dropIfExists('menu_categories');
+//        Schema::table('menu_categories', function (Blueprint $table) {
+//            $table->dropSoftDeletes();
+//        });
     }
 }

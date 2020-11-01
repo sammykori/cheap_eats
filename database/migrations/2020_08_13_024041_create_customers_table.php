@@ -20,8 +20,8 @@ class CreateCustomersTable extends Migration
             $table->string('office_location')->nullable();
             $table->string('phone_number');
             $table->enum('account_status', ['ACTIVE', 'INACTIVE'])->default('ACTIVE');
-            $table->enum('delete_status', ['DELETED', 'NOT DELETED'])->default('NOT DELETED');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -33,5 +33,8 @@ class CreateCustomersTable extends Migration
     public function down()
     {
         Schema::dropIfExists('customers');
+//        Schema::table('customers', function (Blueprint $table) {
+//            $table->dropSoftDeletes();
+//        });
     }
 }

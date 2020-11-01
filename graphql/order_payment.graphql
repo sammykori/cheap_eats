@@ -1,0 +1,26 @@
+#extend type Query {
+#
+#}
+
+#extend type Mutation {
+#
+#}
+
+
+type Order_payment {
+    order_payment_id: ID
+    ordersorder_id: ID
+    payment_status: PAYMENT_STATUS
+    payment_type: PAYMENT_TYPE
+}
+
+enum PAYMENT_STATUS {
+    PAID
+    UNPAID
+    FAILED
+}
+
+enum PAYMENT_TYPE {
+    CASH
+    MOBILEMONEY
+}

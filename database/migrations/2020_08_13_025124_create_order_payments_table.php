@@ -18,8 +18,8 @@ class CreateOrderPaymentsTable extends Migration
             $table->unsignedBigInteger('orders_order_id');
             $table->string('payment_status');
             $table->enum('payment_type', ['CASH','MOMO']);
-            $table->enum('delete_status',['DELETED', 'NOT DELETED'])->default('NOT DELETED');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -31,5 +31,8 @@ class CreateOrderPaymentsTable extends Migration
     public function down()
     {
         Schema::dropIfExists('order_payments');
+//        Schema::table('order_payments', function (Blueprint $table) {
+//            $table->dropSoftDeletes();
+//        });
     }
 }

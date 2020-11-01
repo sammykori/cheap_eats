@@ -1,0 +1,17 @@
+#extend type Query {
+#
+#}
+
+#extend type Mutation  {
+#
+#}
+
+
+type Order_delivery {
+    order_delivery_id: ID
+    orders_order_id: ID
+    delivery_token: String
+    delivery_type: String  #change to enum of delivery types are known.
+    delivery_location: String
+    delivery_time: String
+}

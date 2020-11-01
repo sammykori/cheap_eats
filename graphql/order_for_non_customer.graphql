@@ -1,0 +1,17 @@
+#extend type Query  {
+#
+#}
+
+
+#extend type Mutation {
+#
+#}
+
+
+type OrderForNoNCustomer {
+    order_for_non_customer_id: ID
+    receiver_name: String
+    orders_order_id: ID
+    receiver_location: String
+}
+

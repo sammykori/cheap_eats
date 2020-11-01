@@ -21,8 +21,8 @@ class CreateOrderDeliveriesTable extends Migration
             $table->string('delivery_location');
             $table->time("departure_time")->nullable();
             $table->time("delivery_time")->nullable();
-            $table->enum('delete_status', ['DELETED', 'NOT DELETED'])->default('NOT DELETED');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -34,5 +34,8 @@ class CreateOrderDeliveriesTable extends Migration
     public function down()
     {
         Schema::dropIfExists('order_deliveries');
+//        Schema::table('order_deliveries', function (Blueprint $table) {
+//            $table->dropSoftDeletes();
+//        });
     }
 }

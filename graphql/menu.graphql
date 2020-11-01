@@ -1,0 +1,33 @@
+extend type Query {
+    menus: [Menu] @field(resolver: "MenuQueries@cheaps_menus")
+    menu(menu_id: ID @spread) : Menu @field(resolver: "MenuQueries@cheaps_menu")
+}
+
+extend type Mutation {
+    create_menu (menu_details: MenuData @spread) : Menu @field(resolver: "MenuMutations@create_menu")
+}
+
+input MenuData {
+    food_name: String
+    food_type: String
+    food_price: Float
+    short_description: String
+    long_description: String
+    menu_status: MENU_STATUS
+}
+
+
+type Menu {
+    menu_id: ID
+    food_name: String
+    food_type: String
+    food_price: Float
+    short_description: String
+    long_description: String
+    menu_status: MENU_STATUS
+}
+
+enum MENU_STATUS {
+    AVAILABLE
+    UNAVAILBLE
+}

@@ -1,0 +1,21 @@
+
+extend type Query {
+    orders: [Order] @field(resolver: "OrdersQuery@cheaps_orders")
+}
+
+
+#extend type Mutation {
+#
+#}
+
+
+type Order {
+    uuid: String
+    quantity: Float
+    food_price_amount: Float
+    customer: Customer @hasOne
+    menu: Menu @hasOne
+    order_payment: Order_payment @hasOne
+    order_delivery: Order_delivery @hasOne
+    order_for_no_customer:OrderForNoNCustomer @hasOne
+}
